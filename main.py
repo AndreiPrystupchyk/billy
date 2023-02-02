@@ -1,23 +1,34 @@
 #pingwinka
 import telebot
 import modules.replys as replys
-import modules.PO as pidoraOtvet
-import modules.welcomToTheClub as welcomeToTheClub
 import cache
 import config
 import time
 import modules.gayRadar as gayRadar
-import modules.bottle as bottle
 import modules.randomVoice as randomVoice
 import random
+import json
+
 
 API_KEY = config.token
 bot = telebot.TeleBot(API_KEY)
 bot.set_webhook()
 
-fingersList = ['🤙','👍','👈','👉','👆','🖕','👇','☝']
-
 andreiID = 355407137
+
+try:
+  with open ('/bot/data/data.json','r+') as dataFile:
+    data = json.loads(dataFile.read())
+    cache.lastBotMessageTime = data['lastBotMessageTime']
+    cache.botTimeOut = data['botTimeOut']
+    cache.pidorOfDay = data['pidorOfDay']
+    cache.pidorOfDayDate = data['pidorOfDayDate']
+    cache.radarScoreStartingAt = data['radarScoreStartingAt']
+    cache.chatUsers = data['chatUsers']
+    cache.pinndedMessageId  = data['pinndedMessageId']
+except:
+  print('dataFile not exist')
+
 
 @bot.message_handler(content_types=['voice'])
 def handle_voice(message):
@@ -26,7 +37,7 @@ def handle_voice(message):
 @bot.message_handler(content_types=["new_chat_members"])
 def foo(message):
   tempDateStamp = int(time.time())
-  welcomeToTheClub.welcomToTheClub(bot,message,tempDateStamp)
+  replys.welcomToTheClub(bot,message,tempDateStamp)
 
 @bot.message_handler(commands=['radar'])
 def radar(message):
@@ -41,6 +52,8 @@ def radarReset(message):
   if message.from_user.id == andreiID:
     cache.pidorOfDay = ''
     cache.pidorOfDayDate = ''
+    bot.unpin_chat_message(cache.pinndedMessage.chat.id,cache.pinndedMessage.message_id)
+    cache.pinndedMessage = ''
     bot.send_message(message.chat.id, 'Ты опустошил мой бак...')
 
 def find(lst, key, value):
@@ -69,7 +82,7 @@ def radarReset(message):
 @bot.message_handler()
 def handle_message(message):
   tempDateStamp = int(time.time())
-
+  answer = True
   if len(cache.chatUsers) < 7:
     if message.from_user.id != bot.user.id:
       if not any(d['id'] == message.from_user.id for d in cache.chatUsers):
@@ -85,6 +98,7 @@ def handle_message(message):
   if message.date - cache.lastBotMessageTime > cache.botTimeOut:
     if message.reply_to_message:
 #agro answer
+
       if message.reply_to_message.from_user.id == bot.user.id:
         if message.reply_to_message.text == 'Хуй на.🤣':
           bot.reply_to(message, "Возьми два.🤣🤣🤣")
@@ -99,35 +113,60 @@ def handle_message(message):
               replys.replyFunc(bot,message,tempDateStamp)
           else:
             replys.replyFunc(bot,message,tempDateStamp)
+          answer = False
 #billy triger
-    if any(ext in message.text.lower() for ext in replys.trigers):
+    if answer and any(ext in message.text.lower() for ext in replys.billyTrigers):
       replys.replyFunc(bot,message,tempDateStamp)
+      answer = False
 #pidora otvet
-    if message.text.lower() in pidoraOtvet.pidoraOtvietList:
-      pidoraOtvet.pidoraOtviet(bot,message,tempDateStamp)
+    if answer and message.text.lower() in replys.pidoraOtvietList:
+      replys.pidoraOtviet(bot,message,tempDateStamp)
+      answer = False
 #huina
-    if message.text.lower() in pidoraOtvet.daList:
-      pidoraOtvet.daOtvet(bot,message,tempDateStamp)
+    if answer and message.text.lower() in replys.daList:
+      replys.daOtvet(bot,message,tempDateStamp)
+      answer = False
 #cs
-    if message.text.lower() in pidoraOtvet.csListTriger:
-      pidoraOtvet.csOtvet(bot,message,tempDateStamp)
+    if answer and any(ext in message.text.lower() for ext in replys.csListTriger):
+      replys.csOtvet(bot,message,tempDateStamp)
+      answer = False
 #palec
-    if any(ext in message.text for ext in fingersList):
-      bot.reply_to(message,'Ох, блять, какой палец, его бы мне в жопу.')
+    if answer and any(ext in message.text for ext in replys.fingersList):
+      bot.reply_to(message,'Ох, блять, какой палец, его бы мне в жопу...')
       cache.lastBotMessageTime = tempDateStamp
+      answer = False
 #welcomeToTheClub pidor
-    if any(ext in message.text.lower() for ext in welcomeToTheClub.pidorList):
-      welcomeToTheClub.welcomToTheClub(bot,message,tempDateStamp)
+    if answer and any(ext in message.text.lower() for ext in replys.pidorList):
+      replys.welcomToTheClub(bot,message,tempDateStamp)
+      answer = False
 #bottle
-    if any(ext in message.text.lower() for ext in bottle.bottleList):
-      bottle.sitOnBottle(bot,message,tempDateStamp)
+    if answer and any(ext in message.text.lower() for ext in replys.bottleList):
+      replys.sitOnBottle(bot,message,tempDateStamp)
+      answer = False
     
 #celebrate
-    if "@Spermobakibot" in message.text:
+    if "@Spermobakibot" in message.text and answer:
       bot.send_message(message.chat.id, "Let's celebrate and suck some dick!")
       cache.lastBotMessageTime = tempDateStamp
+      answer = False
 #voice
-    if (random.randint(1,120) == 69):
+    if answer and (random.randint(1,120) == 69):
       randomVoice.randomVoicePlay(bot,message)
+      answer = False
+#ebiot?
+    if answer and message.text.endswith('?') and random.randint(1,10) == 1:
+      replys.ebiot(bot,message,tempDateStamp)
+  
+ 
+  cacheToSave = {}
+  cacheToSave['lastBotMessageTime'] = cache.lastBotMessageTime
+  cacheToSave['botTimeOut'] = cache.botTimeOut
+  cacheToSave['pidorOfDay'] = cache.pidorOfDay
+  cacheToSave['pidorOfDayDate'] = cache.pidorOfDayDate
+  cacheToSave['radarScoreStartingAt'] = cache.radarScoreStartingAt
+  cacheToSave['chatUsers'] = cache.chatUsers 
+  cacheToSave['pinndedMessageId'] = cache.pinndedMessageId
+  with open('/bot/data/data.json', 'w') as outJason:  
+    json.dump(cacheToSave, outJason,indent=4, sort_keys=True, default=str)
 
 bot.polling(non_stop=True)
