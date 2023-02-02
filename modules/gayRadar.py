@@ -23,7 +23,7 @@ def checkradarScoreStartingAt():
   else: return True
 
 def gayRadarStart(bot,message,bool):
-    if radarCheckDate() and len(cache.chatUsers) > 3:
+    if radarCheckDate() and len(cache.chatUsers) > 0:
       newDt = datetime.now().date()
       cache.pidorOfDayDate = newDt
       cache.pidorOfDay = random.choice(cache.chatUsers)
@@ -53,7 +53,10 @@ def defindeAndSayPidorOfDay(bot,message,bool):
   if bool:
     mention = f"[{name}](tg://user?id={cache.pidorOfDay['id']})"
     bot.send_message(message.chat.id, 'Запускаю гейрадар. Сейчас посмотрим кто сегодня петушара...')
-    bot.send_message(message.chat.id, f'Похоже пидорас дня сегодня {mention}🥳',parse_mode="Markdown")
+    if not cache.pinndedMessage == '':
+      bot.unpin_chat_message(cache.pinndedMessage.chat.id,cache.pinndedMessage.message_id)
+    cache.pinndedMessage = bot.send_message(message.chat.id, f'Похоже пидорас дня сегодня {mention}🥳',parse_mode="Markdown")
+    bot.pin_chat_message(cache.pinndedMessage.chat.id, cache.pinndedMessage.message_id)
   else:
     bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘')
 

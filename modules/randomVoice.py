@@ -3,7 +3,7 @@ import random
 
 cwd = os.getcwd()
 listOfAudio = f'{cwd}/audio/'
-numberOfFiles = 2
+numberOfFiles = 3
 
 def randomVoicePlay(bot,message):
     voice = open(f'{cwd}/audio/{random.randint(1,numberOfFiles)}.ogg','rb')
