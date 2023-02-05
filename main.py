@@ -4,6 +4,7 @@ import modules.replys as replys
 import cache
 import config
 import time
+from datetime import datetime, date
 import modules.gayRadar as gayRadar
 import modules.randomVoice as randomVoice
 import random
@@ -22,10 +23,10 @@ try:
     cache.lastBotMessageTime = data['lastBotMessageTime']
     cache.botTimeOut = data['botTimeOut']
     cache.pidorOfDay = data['pidorOfDay']
-    cache.pidorOfDayDate = data['pidorOfDayDate']
-    cache.radarScoreStartingAt = data['radarScoreStartingAt']
+    cache.pidorOfDayDate = date.fromisoformat(data['pidorOfDayDate'])
+    cache.radarScoreStartingAt = date.fromisoformat(data['radarScoreStartingAt'])
     cache.chatUsers = data['chatUsers']
-    cache.pinndedMessageId  = data['pinndedMessageId']
+    cache.pinndedMessageId  = int(data['pinndedMessageId'])
 except:
   print('dataFile not exist')
 
@@ -46,6 +47,16 @@ def radar(message):
 @bot.message_handler(commands=['score'])
 def radar(message):
   gayRadar.score(bot,message)
+
+@bot.message_handler(commands=['cs'])
+def csMent(message):
+   csAsk = 'Будете в кс?\n\n'
+   for i in range(len(cache.spermachiList)):
+     if cache.spermachiList[i]['name'] in cache.whoPlayCs:
+       mentionToAsk = f"[{cache.spermachiList[i]['name']}](tg://user?id={cache.spermachiList[i]['id']})"
+       csAsk += f'{mentionToAsk}, '
+   bot.send_message(message.chat.id, csAsk,parse_mode="Markdown")
+
 
 @bot.message_handler(commands=['radarReset'])
 def radarReset(message):
@@ -145,19 +156,20 @@ def handle_message(message):
       answer = False
     
 #celebrate
-    if "@Spermobakibot" in message.text and answer:
+    if answer and "@Spermobakibot" in message.text:
       bot.send_message(message.chat.id, "Let's celebrate and suck some dick!")
       cache.lastBotMessageTime = tempDateStamp
       answer = False
 #voice
-    if answer and (random.randint(1,120) == 69):
+    if answer and (random.randint(1,100) == 69):
       randomVoice.randomVoicePlay(bot,message)
       answer = False
 #ebiot?
-    if answer and message.text.endswith('?') and random.randint(1,10) == 1:
+    if answer and message.text.endswith('?') and random.randint(1,13) == 1:
       replys.ebiot(bot,message,tempDateStamp)
   
- 
+    
+   
   cacheToSave = {}
   cacheToSave['lastBotMessageTime'] = cache.lastBotMessageTime
   cacheToSave['botTimeOut'] = cache.botTimeOut
