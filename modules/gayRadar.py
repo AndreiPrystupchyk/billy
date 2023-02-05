@@ -5,7 +5,7 @@ import random
 def radarCheckDate():
    newDate = datetime.now().date()
    if not checkradarScoreStartingAt():
-     cache.radarScoreStartingAt = newDate
+    cache.radarScoreStartingAt = newDate
 
    if newDate != cache.pidorOfDayDate:
      return True
@@ -53,8 +53,10 @@ def defindeAndSayPidorOfDay(bot,message,bool):
   if bool:
     mention = f"[{name}](tg://user?id={cache.pidorOfDay['id']})"
     bot.send_message(message.chat.id, 'Запускаю гейрадар. Сейчас посмотрим кто сегодня петушара...')
-    if not cache.pinndedMessage == '':
+    try:
       bot.unpin_chat_message(cache.pinndedMessage.chat.id,cache.pinndedMessage.message_id)
+    except:
+      print("Can`t unpin")
     cache.pinndedMessage = bot.send_message(message.chat.id, f'Похоже пидорас дня сегодня {mention}🥳',parse_mode="Markdown")
     bot.pin_chat_message(cache.pinndedMessage.chat.id, cache.pinndedMessage.message_id)
   else:
@@ -64,11 +66,13 @@ def score(bot,message):
   if checkradarScoreStartingAt():
     statAnswer = f'<b>От {cache.radarScoreStartingAt}:</b>'
     statAnswer += '\n\nВсего сообщений:'
-    for i in range(len(cache.chatUsers)):
-      name = defineName(cache.chatUsers[i])
-      statAnswer += f'\n<i>{name}: {cache.chatUsers[i]["total_messages"]}</i>'
+    sortedList = sorted(cache.chatUsers, key=lambda d: d['total_messages'],reverse=True) 
+    for i in range(len(sortedList)):
+      name = defineName(sortedList[i])
+      statAnswer += f'\n<i>{name}: {sortedList[i]["total_messages"]}</i>'
     statAnswer += '\n\nГейрадар:'
-    for i in range(len(cache.chatUsers)):
-      name = defineName(cache.chatUsers[i])
-      statAnswer += f'\n<i>{name}: {cache.chatUsers[i]["score"]}</i>'
+    sortedList = sorted(cache.chatUsers, key=lambda d: d['score'],reverse=True) 
+    for i in range(len(sortedList)):
+      name = defineName(sortedList[i])
+      statAnswer += f'\n<i>{name}: {sortedList[i]["score"]}</i>'
     bot.send_message(message.chat.id, statAnswer,parse_mode='html')

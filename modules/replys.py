@@ -106,7 +106,7 @@ daList = ["da",
 
 #cs answer
 csListTriger = ["cs",
-                "кс",
+                "кс ",
                 "контру",
                 "cs.",
                 "кс.",
