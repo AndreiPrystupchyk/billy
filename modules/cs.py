@@ -1,21 +1,31 @@
 import cache
 
+
+#################################################
+def removeBotName(str):
+  return str.text.lower().replace('/cs@spermobakibot', '/cs')
+
+
 def csSend(bot, message):
-    args = message.text.lower()
+    mes = removeBotName(message)
     csAskList = []
-    if args == '/cs':
-        csAsk = 'Будете в кс?\n\n'
+    fromWho = list(cache.spermachiList.keys())[list(cache.spermachiList.values()).index(message.from_user.id)]
+    if mes == '/cs':
+        csAsk = f'Будете в кс? ({fromWho})\n\n'
     else:
-        csAsk = args.removeprefix('/cs ')
-        csAsk += '\n\n'
+        csAsk = mes.removeprefix('/cs ')
+        csAsk += f' ({fromWho})\n\n'
     for i in range(len(cache.whoPlayCs)):
-        mentionToAsk = f"[{cache.whoPlayCs[i]}](tg://user?id={cache.spermachiList[cache.whoPlayCs[i]]})"
-        csAskList.append(mentionToAsk)
+        name = cache.whoPlayCs[i]
+        if name != fromWho:
+          mentionToAsk = f"[{name}](tg://user?id={cache.spermachiList[name]})"
+          csAskList.append(mentionToAsk)
     csAsk += ', '.join(list(csAskList))
     bot.send_message(message.chat.id, csAsk,parse_mode="Markdown")
 
 def csadd(bot, message):
-    m = message.text.lower().removeprefix('/csadd').title()
+    mes = removeBotName(message).lower()
+    m = mes.removeprefix('/csadd').title()
     args = [x.strip() for x in m.split(',')]
     answer = ''
     noInChat = []
@@ -32,14 +42,15 @@ def csadd(bot, message):
         if noInChat != []:
             answer += f'Не могу добавить: {", ".join(list(noInChat))} \n\nНужно выбрать кого-то из списка: {", ".join(list(cache.spermachiList.keys()))}'
         if alreadyInList != []:
-            answer += f'\n {", ".join(list(noInChat))} уже находится в списке.'
+            answer += f'\n {", ".join(list(alreadyInList))} уже находится в списке.'
         bot.send_message(message.chat.id, answer)
     cslist(bot,message)
 
 
 
 def csrm(bot,message):
-    m = message.text.lower().removeprefix('/csrm').title()
+    mes = removeBotName(message).lower()
+    m = mes.removeprefix('/csrm').title()
     args = [x.strip() for x in m.split(',')]
     answer = ''
     noInList = []
