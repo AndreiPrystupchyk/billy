@@ -65,18 +65,18 @@ billyTrigers = [
         ]
 
 billyReplys = ["Ты чё дерзкий такой?",
-    "Выйдём?",
-    "Сейчас заламаю...",
-    "Пошёл нахуй.",
-    "Отсоси мне.",
-    "Говна въебал?",
-    "Cum...",
-    "Dungeon master?",
-    "Boss of this gym.",
-    "Fucking slave...",
-    "Fuck you!",
-    "oh shit im sorry",
-    "Lets selebrate and suck some dick."
+                "Выйдём?",
+                "Сейчас заламаю...",
+                "Пошёл нахуй.",
+                "Отсоси мне.",
+                "Говна въебал?",
+                "Cum...",
+                "Dungeon master?",
+                "Boss of this gym.",
+                "Fucking slave...",
+                "Fuck you!",
+                "oh shit im sorry",
+                "Lets selebrate and suck some dick."
     ]
 
 #pidora answer
@@ -106,23 +106,26 @@ daList = ["da",
 
 #cs answer
 csListTriger = ["cs",
-                "кс ",
+                " кс ",
                 "контру",
                 "cs.",
-                "кс.",
+                " кс.",
                 "контру.",
                 "cs,",
-                "кс,",
+                " кс,",
                 "контру,",
                 "cs?",
-                "кс?",
-                "контру?"
+                " кс?",
+                "контру?",
+                "катаем?",
+                "катаем",
+                "катку?"
                 ]
 
 csListAnswers = ["Кс для пидоров.",
                  "С нубами не катаю.",
                  "А может в танки?",
-                 "Нормальные пацаны в генши играют..."]
+                 "Нормальные пацаны в геншин играют..."]
 
 #welcom to the club
 pidorList = ["пидар",
