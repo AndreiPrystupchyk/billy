@@ -4,13 +4,8 @@ pidorOfDay = ''
 pidorOfDayDate = ''
 radarScoreStartingAt = ''
 pinndedMessage = ''
+pinndedMessageId = ''
+pinndedMessageChatId = ''
 chatUsers = []
-whoPlayCs = ['Паша','Никита','Миша','Даник','Илья']
-spermachiList = [{'name':'Андрей','id':355407137},
-                 {'name':'Паша','id':355662198},
-                 {'name':'Никита','id':899133881},
-                 {'name':'Вадим','id':867353082},
-                 {'name':'Миша','id':628161417},
-                 {'name':'Даник','id':1283615722},
-                 {'name':'Илья','id':1081601943}
-                 ]
+whoPlayCs = []
+spermachiList = {'Андрей':355407137,'Паша':355662198,'Никита':899133881,'Вадим':867353082,'Миша':628161417,'Даник':1283615722,'Илья':1081601943}
