@@ -33,6 +33,7 @@ try:
 except:
   print("load data error")
 
+
 #################################################
 @bot.message_handler(content_types=['voice']) 
 def handle_voice(message):
@@ -118,7 +119,6 @@ def handle_message(message):
   if message.date - cache.lastBotMessageTime > cache.botTimeOut:
     if message.reply_to_message:
 #################################################   #agro answer
-
       if message.reply_to_message.from_user.id == bot.user.id:
         if message.reply_to_message.text == 'Хуй на.🤣':
           bot.reply_to(message, "Возьми два.🤣🤣🤣")
@@ -131,9 +131,7 @@ def handle_message(message):
             cache.lastBotMessageTime = tempDateStamp
           else:
             replys.replyFunc(bot,message,tempDateStamp)
-      else:
-        replys.replyFunc(bot,message,tempDateStamp)
-        answer = False
+            answer = False
 #################################################   #billy triger
     if answer and any(ext in message.text.lower() for ext in replys.billyTrigers):
       replys.replyFunc(bot,message,tempDateStamp)
