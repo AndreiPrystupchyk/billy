@@ -98,17 +98,26 @@ def radarReset(message):
     for i in range(len(cache.chatUsers)):
       cache.chatUsers[i]['total_messages'] = 0
     bot.send_message(message.chat.id, 'Ты опустошил мой бак...')
+@bot.message_handler(commands=['renameme'])
+def rename(message):
+      user = cache.chatUsers[find(cache.chatUsers,'id',message.from_user.id)]
+      user['username'] = message.from_user.username
+      user['first_name'] = message.from_user.first_name
+      user['last_name'] = message.from_user.last_name
+      bot.send_message(message.chat.id, f'Твоё новое имя: {gayRadar.defineName(user)}')
+def addNewUser(message):
+  if len(cache.chatUsers) < 7:
+    if message.from_user.id != bot.user.id:
+      if not any(d['id'] == message.from_user.id for d in cache.chatUsers):
+        cache.chatUsers.append({'id':message.from_user.id,'username':message.from_user.username,'first_name':message.from_user.first_name,'last_name':message.from_user.last_name,'score':0,'total_messages':0})
 
 #################################################
 @bot.message_handler()
 def handle_message(message):
   tempDateStamp = int(time.time())
   answer = True
-  if len(cache.chatUsers) < 7:
-    if message.from_user.id != bot.user.id:
-      if not any(d['id'] == message.from_user.id for d in cache.chatUsers):
-        cache.chatUsers.append({'id':message.from_user.id,'username':message.from_user.username,'first_name':message.from_user.first_name,'last_name':message.from_user.last_name,'score':0,'total_messages':0})
-  if cache.chatUsers != '':
+  addNewUser(message)
+  if len(cache.chatUsers) != 0:
     messageFromUser = ''
     messageFromUser = cache.chatUsers[find(cache.chatUsers,'id',message.from_user.id)]
     messageFromUser['total_messages'] = messageFromUser['total_messages'] + 1
@@ -188,5 +197,7 @@ def handle_message(message):
   cacheToSave['whoPlayCs'] = cache.whoPlayCs
   with open(f'{config.dataPath}/data/data.json', 'w') as outJason:  
     json.dump(cacheToSave, outJason,indent=4, sort_keys=True, default=str)
+
+
 
 bot.polling(non_stop=True)
