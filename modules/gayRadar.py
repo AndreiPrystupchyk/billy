@@ -58,7 +58,7 @@ def defindeAndSayPidorOfDay(bot,message,bool):
       bot.unpin_chat_message(cache.pinndedMessageChatId,cache.pinndedMessageId)
     except:
       print("Can`t unpin")
-    cache.pinndedMessage = bot.send_message(message.chat.id, f'Похоже пидорас дня сегодня {mention}🥳',parse_mode="Markdown")
+    cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидорас дня сегодня {mention}🥳',parse_mode="Markdown")
     cache.pinndedMessageChatId = cache.pinndedMessage.chat.id
     cache.pinndedMessageId = cache.pinndedMessage.message_id
     bot.pin_chat_message(cache.pinndedMessage.chat.id, cache.pinndedMessage.message_id)
