@@ -5,7 +5,7 @@ from collections import deque
 
 openai.api_key = config.openaitoken
 
-bioUsers = 'Вадим (дальнобойщик, любитель фейсситинга когда у него сидят на лице), Паша (так же известный как смятана, рыжий), Никита (жирный, гребень, ленивый, хач, shishe enjoyer), Андрей (машина, одинокий дрочилла), Даник (школьник которому пора в детдом), Миша (так же известным как Мигель, токсичный дотер) и Илья (любитель брать в долг, так же известный как "псс парень, тебе сайт не нужен?")'
+bioUsers = cache.oaiBioUsers
 botHistory = deque()
 usersHistory = deque()
 
@@ -32,8 +32,7 @@ def dequeLenOperator(delAllBool):
 
 def oaiMessageGetter(bot,message,bool):
     fromWho = list(cache.spermachiList.keys())[list(cache.spermachiList.values()).index(message.from_user.id)]
-    whoPlayCs = ', '.join(str(x) for x in cache.whoPlayCs)
-    system_content = f'Тебя назвали в четь Billy Herrington. Ты отвечаешь всегда как друган с матами и приколами, подшучиваешь над всеми. Ты сидишь в чате с {bioUsers}. Сейчас будешь отвечать на сообщение от {fromWho}.'
+    system_content = f'{cache.oaiBotRole} Ты сидишь в чате с {bioUsers}. Сейчас будешь отвечать на сообщение от {fromWho}.'
     if bool:
       msg = removeBilly(message)
       messages = []

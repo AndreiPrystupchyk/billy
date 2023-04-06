@@ -2,48 +2,46 @@ import cache
 import random
 
 #billyAnswer
-def replyFunc(bot, message, timeStamp):
+def replyFunc(bot, message):
       bot.send_message(message.chat.id, random.choice(billyReplys), reply_to_message_id=message.id)
-      cache.lastBotMessageTime = timeStamp
 
 #pidora answer
-def pidoraOtviet(bot, message, timeStamp):
+def pidoraOtviet(bot, message):
         bot.reply_to(message, random.choice(netAnsers))
-        cache.lastBotMessageTime = timeStamp
+
 #yes answer
-def daOtvet(bot, message, timeStamp):
+def daOtvet(bot, message):
     bot.reply_to(message, "Хуй на.🤣")
-    cache.lastBotMessageTime = timeStamp
+
 #cs answer
-def csOtvet(bot, message, timeStamp):
+def csOtvet(bot, message):
     bot.reply_to(message, random.choice(csListAnswers))
-    cache.lastBotMessageTime = timeStamp
+
 
 #welcom to the club
-def welcomToTheClub(bot,message,timeStamp):
+def welcomToTheClub(bot,message):
     if message.reply_to_message:
         if message.reply_to_message.from_user.id != bot.user.id:
             bot.send_message(message.chat.id, "Welcome to the club buddy!",reply_to_message_id=message.reply_to_message.message_id)
-            cache.lastBotMessageTime = timeStamp
+
     else:
         bot.send_message(message.chat.id, "Welcome to the club buddy!")
-        cache.lastBotMessageTime = timeStamp
+
 
 #bottle
-def sitOnBottle(bot,message,timeStamp):
+def sitOnBottle(bot,message,):
     if message.reply_to_message:
         if message.reply_to_message.from_user.id != bot.user.id:
             bot.send_message(message.chat.id, random.choice(sitAnswers),reply_to_message_id=message.reply_to_message.message_id)
-            cache.lastBotMessageTime = timeStamp
+
     else:
         bot.send_message(message.chat.id, random.choice(sitAnswers))
-        cache.lastBotMessageTime = timeStamp
+
 
 
 #ebiot
-def ebiot(bot,message,timeStamp):
+def ebiot(bot,message):
     bot.reply_to(message, random.choice(ebiotList))
-    cache.lastBotMessageTime = timeStamp
 
 
 

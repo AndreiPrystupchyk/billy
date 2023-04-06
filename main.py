@@ -14,7 +14,7 @@ API_KEY = config.token
 bot = telebot.TeleBot(API_KEY)
 bot.set_webhook()
 
-andreiID = 355407137
+andreiID = cache.andreiID
 
 try:
   my_file = Path(f'{config.dataPath}/data/data.json')
