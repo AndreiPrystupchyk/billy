@@ -1,16 +1,14 @@
-#pingwinka
+from pathlib import Path
 import telebot
 import modules.replys as replys
 import cache
 import config
-import time
-from datetime import datetime, date
+from datetime import date
 import modules.gayRadar as gayRadar
-import modules.randomVoice as randomVoice
+import modules.oai as oai
 import modules.cs as cs
 import random
 import json
-
 
 API_KEY = config.token
 bot = telebot.TeleBot(API_KEY)
@@ -19,10 +17,9 @@ bot.set_webhook()
 andreiID = 355407137
 
 try:
+  my_file = Path(f'{config.dataPath}/data/data.json')
   with open (f'{config.dataPath}/data/data.json','r+') as dataFile:
     data = json.loads(dataFile.read())
-    cache.lastBotMessageTime = data['lastBotMessageTime']
-    cache.botTimeOut = data['botTimeOut']
     cache.pidorOfDay = data['pidorOfDay']
     cache.pidorOfDayDate = date.fromisoformat(data['pidorOfDayDate'])
     cache.radarScoreStartingAt = date.fromisoformat(data['radarScoreStartingAt'])
@@ -30,9 +27,11 @@ try:
     cache.pinndedMessageId  = int(data['pinndedMessageId'])
     cache.pinndedMessageChatId  = int(data['pinndedMessageChatId'])
     cache.whoPlayCs = data['whoPlayCs']
+    cache.openaiToggle = data['openaiToggle']
+    cache.historyLimit = int(data['historyLimit'])
+
 except:
   print("load data error")
-
 
 #################################################
 @bot.message_handler(content_types=['voice']) 
@@ -41,8 +40,7 @@ def handle_voice(message):
 #################################################
 @bot.message_handler(content_types=["new_chat_members"])
 def foo(message):
-  tempDateStamp = int(time.time())
-  replys.welcomToTheClub(bot,message,tempDateStamp)
+  replys.welcomToTheClub(bot,message)
 #################################################
 @bot.message_handler(commands=['radar'])
 def radar(message):
@@ -51,12 +49,28 @@ def radar(message):
 @bot.message_handler(commands=['stat'])
 def radar(message):
   gayRadar.score(bot,message, True, True)
-
-
+#################################################
+@bot.message_handler(commands=['backup'])
+def backup(message):
+  if message.from_user.id == andreiID:
+    with open (f'{config.dataPath}/backup/data.json','r') as dataFile:
+      data = json.loads(dataFile.read())
+      cache.pidorOfDay = data['pidorOfDay']
+      cache.pidorOfDayDate = date.fromisoformat(data['pidorOfDayDate'])
+      cache.radarScoreStartingAt = date.fromisoformat(data['radarScoreStartingAt'])
+      cache.chatUsers = data['chatUsers']
+      cache.pinndedMessageId  = int(data['pinndedMessageId'])
+      cache.pinndedMessageChatId  = int(data['pinndedMessageChatId'])
+      cache.whoPlayCs = data['whoPlayCs']
+      cache.openaiToggle = data['openaiToggle']
 #################################################     CS
 @bot.message_handler(commands=['cs'])
 def csCommand(message):
-  cs.csSend(bot, message)
+  cs.csReq(bot, message,False)
+
+@bot.message_handler(commands=['csn'])
+def csNew(message):
+  cs.csReq(bot, message,True)
 
 @bot.message_handler(commands=['csadd'])
 def csadduser(message):
@@ -69,6 +83,26 @@ def csremove(message):
 @bot.message_handler(commands=['cslist'])
 def csshowlist(message):
   cs.cslist(bot, message)
+
+@bot.message_handler(commands=['smart'])
+def oaiToggle(message):
+  if message.from_user.id == andreiID:
+    cache.openaiToggle = not cache.openaiToggle
+    bot.send_message(message.chat.id, f'OpenAI Billy: {cache.openaiToggle}')
+
+@bot.message_handler(commands=['historyLimit'])
+def historyLim(message):
+  if message.from_user.id == andreiID:
+    cache.historyLimit = int(message.text.lower().replace('/historylimit ', ''))
+    bot.send_message(message.chat.id, f'historyLimit: {cache.historyLimit}')
+
+@bot.message_handler(commands=['n'])
+def smrt(message):
+  if cache.openaiToggle:
+    oai.dequeLenOperator(True)
+    oai.oaiMessageGetter(bot, message,True)
+  else:
+    bot.send_message(message.chat.id, 'Функция отключена ;(')
 
 #################################################
 @bot.message_handler(commands=['radarReset'])
@@ -98,6 +132,7 @@ def radarReset(message):
     for i in range(len(cache.chatUsers)):
       cache.chatUsers[i]['total_messages'] = 0
     bot.send_message(message.chat.id, 'Ты опустошил мой бак...')
+#################################################
 @bot.message_handler(commands=['renameme'])
 def rename(message):
       user = cache.chatUsers[find(cache.chatUsers,'id',message.from_user.id)]
@@ -114,7 +149,6 @@ def addNewUser(message):
 #################################################
 @bot.message_handler()
 def handle_message(message):
-  tempDateStamp = int(time.time())
   answer = True
   addNewUser(message)
   if len(cache.chatUsers) != 0:
@@ -125,69 +159,70 @@ def handle_message(message):
   if gayRadar.radarCheckDate() and gayRadar.radarCheckHour():
     gayRadar.gayRadarStart(bot, message, False)
   
-  if message.date - cache.lastBotMessageTime > cache.botTimeOut:
-    if message.reply_to_message:
+  if message.reply_to_message:
 #################################################   #agro answer
-      if message.reply_to_message.from_user.id == bot.user.id:
-        if message.reply_to_message.text == 'Хуй на.🤣':
-          bot.reply_to(message, "Возьми два.🤣🤣🤣")
-          cache.lastBotMessageTime = tempDateStamp
+    if message.reply_to_message.from_user.id == bot.user.id:
+      if any(m == message.reply_to_message.id for m in cache.raports):
+        cs.csReq(bot, message,False)
+      elif cache.openaiToggle:
+        if len(oai.botHistory) == 0 or cache.historyLimit == 0:
+          oai.oaiMessageGetter(bot,message,True)
+          answer = False
         else:
-          personalAnswer = random.randint(1,3)
-          if personalAnswer == 1:
-            name = list(cache.spermachiList.keys())[list(cache.spermachiList.values()).index(message.from_user.id)]
-            bot.send_message(message.chat.id, f'Ай, {name}, иди нахуй.', reply_to_message_id=message.id)
-            cache.lastBotMessageTime = tempDateStamp
+          oai.oaiMessageGetter(bot,message,False)
+          answer = False
+      else:
+          if message.reply_to_message.text == 'Хуй на.🤣':
+            bot.reply_to(message, "Возьми два.🤣🤣🤣")
           else:
-            replys.replyFunc(bot,message,tempDateStamp)
-            answer = False
+            personalAnswer = random.randint(1,3)
+            if personalAnswer == 1:
+              name = list(cache.spermachiList.keys())[list(cache.spermachiList.values()).index(message.from_user.id)]
+              bot.send_message(message.chat.id, f'Ай, {name}, иди нахуй.', reply_to_message_id=message.id)
+            else:
+              replys.replyFunc(bot,message)
+              answer = False
+          
 #################################################   #billy triger
     if answer and any(ext in message.text.lower() for ext in replys.billyTrigers):
-      replys.replyFunc(bot,message,tempDateStamp)
-      answer = False
+          replys.replyFunc(bot,message)
+          answer = False
 #################################################   #pidora otvet
     if answer and message.text.lower() in replys.pidoraOtvietList:
-      replys.pidoraOtviet(bot,message,tempDateStamp)
+      replys.pidoraOtviet(bot,message)
       answer = False
 #################################################   #huina
     if answer and message.text.lower() in replys.daList:
-      replys.daOtvet(bot,message,tempDateStamp)
+      replys.daOtvet(bot,message)
       answer = False
 #################################################   #cs
     if answer and (any(ext in message.text.lower() for ext in replys.csListTriger) or message.text.lower() == 'кс?'):
-      replys.csOtvet(bot,message,tempDateStamp)
+      replys.csOtvet(bot,message)
       answer = False
 #################################################   #palec
     if answer and any(ext in message.text for ext in replys.fingersList):
       bot.reply_to(message,'Ох, блять, какой палец, его бы мне в жопу...')
-      cache.lastBotMessageTime = tempDateStamp
       answer = False
 #################################################   #welcomeToTheClub pidor
     if answer and any(ext in message.text.lower() for ext in replys.pidorList):
-      replys.welcomToTheClub(bot,message,tempDateStamp)
+      replys.welcomToTheClub(bot,message)
       answer = False
 #################################################   #bottle
     if answer and any(ext in message.text.lower() for ext in replys.bottleList):
-      replys.sitOnBottle(bot,message,tempDateStamp)
+      replys.sitOnBottle(bot,message)
       answer = False
     
 #################################################   #celebrate
     if answer and "@Spermobakibot" in message.text:
       bot.send_message(message.chat.id, "Let's celebrate and suck some dick!")
-      cache.lastBotMessageTime = tempDateStamp
       answer = False
-#################################################   #voice
-    if answer and (random.randint(1,70) == 69):
-      randomVoice.randomVoicePlay(bot,message)
-      answer = False
+
 #################################################    #ebiot?
-    if answer and message.text.endswith('?') and random.randint(1,13) == 1:
-      replys.ebiot(bot,message,tempDateStamp)
+    if answer and message.text.endswith('?') and random.randint(1,15) == 1:
+      replys.ebiot(bot,message)
   
 
   cacheToSave = {}
-  cacheToSave['lastBotMessageTime'] = cache.lastBotMessageTime
-  cacheToSave['botTimeOut'] = cache.botTimeOut
   cacheToSave['pidorOfDay'] = cache.pidorOfDay
   cacheToSave['pidorOfDayDate'] = cache.pidorOfDayDate
   cacheToSave['radarScoreStartingAt'] = cache.radarScoreStartingAt
@@ -195,6 +230,9 @@ def handle_message(message):
   cacheToSave['pinndedMessageId'] = cache.pinndedMessageId
   cacheToSave['pinndedMessageChatId'] = cache.pinndedMessageChatId
   cacheToSave['whoPlayCs'] = cache.whoPlayCs
+  cacheToSave['openaiToggle'] = cache.openaiToggle
+  cacheToSave['historyLimit'] = cache.historyLimit
+
   with open(f'{config.dataPath}/data/data.json', 'w') as outJason:  
     json.dump(cacheToSave, outJason,indent=4, sort_keys=True, default=str)
 
