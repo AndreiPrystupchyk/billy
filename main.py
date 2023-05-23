@@ -9,6 +9,7 @@ import modules.oai as oai
 import modules.cs as cs
 import random
 import json
+import modules.steam as steam
 
 API_KEY = config.token
 bot = telebot.TeleBot(API_KEY)
@@ -40,6 +41,7 @@ def handle_voice(message):
 #################################################
 @bot.message_handler(content_types=["new_chat_members"])
 def foo(message):
+  addNewUser(message)
   replys.welcomToTheClub(bot,message)
 #################################################
 @bot.message_handler(commands=['radar'])
@@ -63,6 +65,11 @@ def backup(message):
       cache.pinndedMessageChatId  = int(data['pinndedMessageChatId'])
       cache.whoPlayCs = data['whoPlayCs']
       cache.openaiToggle = data['openaiToggle']
+#################################################     Steam
+@bot.message_handler(commands=['steam'])
+def SteamRequest(message):
+  steam.steamRequest(bot,message,True)
+
 #################################################     CS
 @bot.message_handler(commands=['cs'])
 def csCommand(message):
@@ -71,6 +78,10 @@ def csCommand(message):
 @bot.message_handler(commands=['csn'])
 def csNew(message):
   cs.csReq(bot, message,True)
+
+@bot.message_handler(commands=['csm'])
+def csForceMention(message):
+  cs.readRaport(bot, message,True)
 
 @bot.message_handler(commands=['csadd'])
 def csadduser(message):
@@ -120,6 +131,12 @@ def find(lst, key, value):
         if dic[key] == value:
             return i
     return -1
+################################################# pidor streak 0
+@bot.message_handler(commands=['pidorstreak'])
+def pds(message):
+  if message.from_user.id == andreiID:
+    for i in range(len(cache.chatUsers)):
+      cache.chatUsers[i]['pidorStreak'] = 0
 #################################################
 @bot.message_handler(commands=['statReset'])
 def radarReset(message):
@@ -131,6 +148,8 @@ def radarReset(message):
       cache.chatUsers[i]['score'] = 0
     for i in range(len(cache.chatUsers)):
       cache.chatUsers[i]['total_messages'] = 0
+    for i in range(len(cache.chatUsers)):
+      cache.chatUsers[i]['pidorStreak'] = 0
     bot.send_message(message.chat.id, 'Ты опустошил мой бак...')
 #################################################
 @bot.message_handler(commands=['renameme'])
@@ -141,16 +160,14 @@ def rename(message):
       user['last_name'] = message.from_user.last_name
       bot.send_message(message.chat.id, f'Твоё новое имя: {gayRadar.defineName(user)}')
 def addNewUser(message):
-  if len(cache.chatUsers) < 7:
-    if message.from_user.id != bot.user.id:
-      if not any(d['id'] == message.from_user.id for d in cache.chatUsers):
-        cache.chatUsers.append({'id':message.from_user.id,'username':message.from_user.username,'first_name':message.from_user.first_name,'last_name':message.from_user.last_name,'score':0,'total_messages':0})
+  if message.from_user.id != bot.user.id:
+    if not any(d['id'] == message.from_user.id for d in cache.chatUsers):
+      cache.chatUsers.append({'id':message.from_user.id,'username':message.from_user.username,'first_name':message.from_user.first_name,'last_name':message.from_user.last_name,'score':0,'total_messages':0,'pidorStreak':0})
 
 #################################################
 @bot.message_handler()
 def handle_message(message):
   answer = True
-  addNewUser(message)
   if len(cache.chatUsers) != 0:
     messageFromUser = ''
     messageFromUser = cache.chatUsers[find(cache.chatUsers,'id',message.from_user.id)]
@@ -218,7 +235,7 @@ def handle_message(message):
       answer = False
 
 #################################################    #ebiot?
-    if answer and message.text.endswith('?') and random.randint(1,15) == 1:
+    if answer and message.text.endswith('?') and random.randint(1,12) == 1:
       replys.ebiot(bot,message)
   
 

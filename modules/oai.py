@@ -31,7 +31,7 @@ def dequeLenOperator(delAllBool):
   return
 
 def oaiMessageGetter(bot,message,bool):
-    fromWho = list(cache.spermachiList.keys())[list(cache.spermachiList.values()).index(message.from_user.id)]
+    fromWho = [item for item in cache.spermachiList if item.get('tgId') == message.from_user.id][0]['name']
     system_content = f'{cache.oaiBotRole} Ты сидишь в чате с {bioUsers}. Сейчас будешь отвечать на сообщение от {fromWho}.'
     if bool:
       msg = removeBilly(message)

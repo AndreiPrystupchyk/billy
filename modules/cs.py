@@ -1,26 +1,45 @@
 import cache
+import modules.steam as steam
 from datetime import datetime
 
 
 #################################################
 def removeBotName(str):
-  return str.text.lower().replace('/cs@spermobakibot', '/cs')
+  newStr = str.text.lower().replace('/cs@spermobakibot', '/cs')
+  newStr = str.text.lower().replace('/csn@spermobakibot', '/cs')
+  return newStr
 
-def readRaport(bot, message):
+def readRaport(bot, message, forceMention):
   respond = ''
   now = datetime.now()
-  for i in range(len(cache.csStatus)):
-    if i == 0:
-      respond += f'***{cache.csStatus[i]["name"]}: {cache.csStatus[i]["status"]} ({datetime.strptime(now.strftime("%H:%M:%S"),"%H:%M:%S") - datetime.strptime(cache.csStatus[i]["time"].strftime("%H:%M:%S"),"%H:%M:%S")} назад)***'
-      respond += '\n'
-    else:
-       respond += f'\n{cache.csStatus[i]["name"]}: {cache.csStatus[i]["status"]} ({datetime.strptime(now.strftime("%H:%M:%S"),"%H:%M:%S") - datetime.strptime(cache.csStatus[i]["time"].strftime("%H:%M:%S"),"%H:%M:%S")} назад)'
+  if forceMention:
+    fromWho = [item for item in cache.spermachiList if item.get('tgId') == message.from_user.id][0]['name']
+    for i in range(len(cache.csStatus)):
+      if cache.csStatus[i]['name'] == fromWho:
+         respond += f'{cache.csStatus[i]["name"]}: {cache.csStatus[i]["status"]} ({datetime.strptime(now.strftime("%H:%M:%S"),"%H:%M:%S") - datetime.strptime(cache.csStatus[i]["time"].strftime("%H:%M:%S"),"%H:%M:%S")} назад)'
+      else:
+        respond += f'[\n{cache.csStatus[i]["name"]}](tg://user?id={[item for item in cache.spermachiList if item.get("name") == cache.csStatus[i]["name"]][0]["tgId"]}): {cache.csStatus[i]["status"]} ({datetime.strptime(now.strftime("%H:%M:%S"),"%H:%M:%S") - datetime.strptime(cache.csStatus[i]["time"].strftime("%H:%M:%S"),"%H:%M:%S")} назад)'
+    for ii in range(len(cache.whoPlayCs)):
+      if not any(m['name'] == cache.whoPlayCs[ii] for m in cache.csStatus):
+        if cache.whoPlayCs[ii] == fromWho:
+           respond += f'\n{cache.whoPlayCs[ii]}: ?'
+        else:
+          respond += f'\n[{cache.whoPlayCs[ii]}](tg://user?id={[item for item in cache.spermachiList if item.get("name") == cache.whoPlayCs[ii]][0]["tgId"]}): ?'
+  else:
+    for i in range(len(cache.csStatus)):
+      if i == 0:
+        respond += f'{cache.csStatus[i]["name"]}: {cache.csStatus[i]["status"]} ({datetime.strptime(now.strftime("%H:%M:%S"),"%H:%M:%S") - datetime.strptime(cache.csStatus[i]["time"].strftime("%H:%M:%S"),"%H:%M:%S")} назад)'
+        respond += '\n'
+      else:
+        respond += f'\n{cache.csStatus[i]["name"]}: {cache.csStatus[i]["status"]} ({datetime.strptime(now.strftime("%H:%M:%S"),"%H:%M:%S") - datetime.strptime(cache.csStatus[i]["time"].strftime("%H:%M:%S"),"%H:%M:%S")} назад)'
 
-  for ii in range(len(cache.whoPlayCs)):
-     if not any(m['name'] == cache.whoPlayCs[ii] for m in cache.csStatus):
-        respond += f'\n[{cache.whoPlayCs[ii]}](tg://user?id={cache.spermachiList[cache.whoPlayCs[ii]]}): ?'
+    for ii in range(len(cache.whoPlayCs)):
+      if not any(m['name'] == cache.whoPlayCs[ii] for m in cache.csStatus):
+          respond += f'\n[{cache.whoPlayCs[ii]}](tg://user?id={[item for item in cache.spermachiList if item.get("name") == cache.whoPlayCs[ii]][0]["tgId"]}): ?'
   messToRaport = bot.send_message(message.chat.id, respond, parse_mode="Markdown")
   cache.raports.append(messToRaport.message_id)
+  steam.steamRequest(bot,message,False)
+  
         
 
 def pushStatus(name,status,time):
@@ -42,7 +61,7 @@ def checkDate():
 
 def csReq(bot, message, isNeedNew):
     mes = removeBotName(message)
-    fromWho = list(cache.spermachiList.keys())[list(cache.spermachiList.values()).index(message.from_user.id)]
+    fromWho = [item for item in cache.spermachiList if item.get('tgId') == message.from_user.id][0]['name']
     now = datetime.now()
     if isNeedNew or checkDate():
       cache.csStatus = []
@@ -56,14 +75,14 @@ def csReq(bot, message, isNeedNew):
             m = mes.removeprefix('/csn ')
             m = m.removeprefix('/cs ')
             pushStatus(fromWho,m,now)
-      readRaport(bot, message)
+      readRaport(bot, message, False)
     else:
       if message.text == '/cs':
-         readRaport(bot, message)
+         readRaport(bot, message, False)
       else:
         m = mes.removeprefix('/cs')
         pushStatus(fromWho,m,now)
-        readRaport(bot, message)
+        readRaport(bot, message, False)
         
          
 
@@ -78,13 +97,13 @@ def csadd(bot, message):
       if args[i] in cache.whoPlayCs:
         alreadyInList.append(str(args[i]))
       else:
-        if not args[i] in cache.spermachiList.keys():
+        if not args[i] in list(item["name"] for item in cache.spermachiList):
           noInChat.append(args[i])
         else:
           cache.whoPlayCs.append(args[i])
     if noInChat != [] or alreadyInList != []:
         if noInChat != []:
-            answer += f'Не могу добавить: {", ".join(list(noInChat))} \n\nНужно выбрать кого-то из списка: {", ".join(list(cache.spermachiList.keys()))}'
+            answer += f'Не могу добавить: {", ".join(list(noInChat))} \n\nНужно выбрать кого-то из списка: {", ".join(list(item["name"] for item in cache.spermachiList))}'
         if alreadyInList != []:
             answer += f'\n {", ".join(list(alreadyInList))} уже находится в списке.'
         bot.send_message(message.chat.id, answer)

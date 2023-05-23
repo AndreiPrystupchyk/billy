@@ -2,19 +2,25 @@ import cache
 from datetime import datetime
 import random
 
+
+def find(lst, key, value):
+    for i, dic in enumerate(lst):
+        if dic[key] == value:
+            return i
+    return -1
 def radarCheckDate():
-   newDate = datetime.now().date()
-   if not checkradarScoreStartingAt():
+  newDate = datetime.now().date()
+  if not checkradarScoreStartingAt():
     cache.radarScoreStartingAt = newDate
 
-   if newDate != cache.pidorOfDayDate:
-     return True
-   else:
-     return False
+  if newDate != cache.pidorOfDayDate:
+    return True
+  else:
+    return False
 
 def radarCheckHour():
     newHour = int(datetime.now().strftime("%H"))
-    if newHour >= 8:
+    if newHour >= 6:
       return True
     else:
       return False
@@ -23,13 +29,19 @@ def checkradarScoreStartingAt():
   else: return True
 
 def gayRadarStart(bot,message,bool):
-    if radarCheckDate() and len(cache.chatUsers) > 3:
+    if radarCheckDate() and len(cache.chatUsers) > 0:
+      priviosPidorOfDay = cache.pidorOfDay
       newDt = datetime.now().date()
       cache.pidorOfDayDate = newDt
       cache.pidorOfDay = random.choice(cache.chatUsers)
       cache.pidorOfDay['score'] = cache.pidorOfDay['score'] + 1
+      if priviosPidorOfDay['id'] == cache.pidorOfDay['id']:
+        cache.pidorOfDay['streak'] += 1
+        messageFrom = cache.chatUsers[find(cache.chatUsers,'id',cache.pidorOfDay['id'])]
+        messageFrom['pidorStreak'] = cache.pidorOfDay['streak']
+      else:
+        cache.pidorOfDay['streak'] = 0
       defindeAndSayPidorOfDay(bot,message,True)
-      day = newDt.strftime('%d.%m.%y')
     elif bool and cache.pidorOfDay != '':
       defindeAndSayPidorOfDay(bot,message,False)
 
@@ -58,14 +70,19 @@ def defindeAndSayPidorOfDay(bot,message,bool):
       bot.unpin_chat_message(cache.pinndedMessageChatId,cache.pinndedMessageId)
     except:
       print("Can`t unpin")
-    cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидорас дня сегодня {mention}🥳',parse_mode="Markdown")
+    if cache.pidorOfDay['streak'] != 0:
+      cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидарас дня сегодня {mention}🥳 Идёт со стриком в <b>{cache.pidorOfDay["streak"]}</b> подряд!',parse_mode="Markdown")
+    else:
+      cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидарас дня сегодня {mention}🥳',parse_mode="Markdown")
     cache.pinndedMessageChatId = cache.pinndedMessage.chat.id
     cache.pinndedMessageId = cache.pinndedMessage.message_id
     bot.pin_chat_message(cache.pinndedMessage.chat.id, cache.pinndedMessage.message_id)
     score(bot,message,False,True)
   else:
-    bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘')
-
+    if cache.pidorOfDay['streak'] != 0:
+      bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘. Идёт со стриком в <b>{cache.pidorOfDay["streak"]}</b> подряд!')
+    else:
+      bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘')
 def score(bot,message,totalMessagesBool, totalRadarBool):
   if checkradarScoreStartingAt():
     statAnswer = f'<b>От {cache.radarScoreStartingAt}:</b>'
@@ -76,9 +93,9 @@ def score(bot,message,totalMessagesBool, totalRadarBool):
         name = defineName(sortedList[i])
         statAnswer += f'\n<i>{name}: {sortedList[i]["total_messages"]}</i>'
     if totalRadarBool:
-      statAnswer += '\n\nГейрадар:'
+      statAnswer += '\n\n<b>Гейрадар:</b>'
       sortedList = sorted(cache.chatUsers, key=lambda d: d['score'],reverse=True) 
       for i in range(len(sortedList)):
         name = defineName(sortedList[i])
-        statAnswer += f'\n<i>{name}: {sortedList[i]["score"]}</i>'
+        statAnswer += f'\n<b>{name}: {sortedList[i]["score"]}</b> (лучший cтрик: <i>{sortedList[i]["pidorStreak"]}</i>)'
     bot.send_message(message.chat.id, statAnswer,parse_mode='html')
