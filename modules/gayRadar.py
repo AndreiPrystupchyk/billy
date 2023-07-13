@@ -71,7 +71,7 @@ def defindeAndSayPidorOfDay(bot,message,bool):
     except:
       print("Can`t unpin")
     if cache.pidorOfDay['streak'] != 0:
-      cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидарас дня сегодня {mention}🥳 Идёт со стриком в <b>{cache.pidorOfDay["streak"]}</b> подряд!',parse_mode="Markdown")
+      cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидарас дня сегодня {mention}🥳 Идёт со стриком в <b>{cache.pidorOfDay["streak"]}</b> подряд! И помни, брат, чем глубже - тем блольнее...',parse_mode="Markdown")
     else:
       cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидарас дня сегодня {mention}🥳',parse_mode="Markdown")
     cache.pinndedMessageChatId = cache.pinndedMessage.chat.id
@@ -80,7 +80,7 @@ def defindeAndSayPidorOfDay(bot,message,bool):
     score(bot,message,False,True)
   else:
     if cache.pidorOfDay['streak'] != 0:
-      bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘. Идёт со стриком в <b>{cache.pidorOfDay["streak"]}</b> подряд!')
+      bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘. Идёт со стриком в <b>{cache.pidorOfDay["streak"]}</b> подряд!',parse_mode='html')
     else:
       bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘')
 def score(bot,message,totalMessagesBool, totalRadarBool):
