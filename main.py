@@ -6,13 +6,14 @@ import config
 from datetime import date
 import modules.gayRadar as gayRadar
 import modules.oai as oai
-import modules.cs as cs
+import modules.play as play
 import random
 import json
 import modules.steam as steam
+import modules.transiteration as transiteration
 
-API_KEY = config.token
-bot = telebot.TeleBot(API_KEY)
+tgToken = config.token
+bot = telebot.TeleBot(tgToken)
 bot.set_webhook()
 
 andreiID = cache.andreiID
@@ -28,6 +29,8 @@ try:
     cache.pinndedMessageId  = int(data['pinndedMessageId'])
     cache.pinndedMessageChatId  = int(data['pinndedMessageChatId'])
     cache.whoPlayCs = data['whoPlayCs']
+    cache.whoPlayDota = data['whoPlayDota']
+    cache.playBlackList = data['playBlackList']
     cache.openaiToggle = data['openaiToggle']
     cache.historyLimit = int(data['historyLimit'])
 
@@ -39,17 +42,16 @@ except:
 def handle_voice(message):
   bot.reply_to(message,'Спасибо за голосовое, петушара.👆',parse_mode='HTML')
 #################################################
-@bot.message_handler(content_types=["new_chat_members"])
-def foo(message):
+@bot.message_handler(commands=['newChatMember'])
+def newMember(message):
   addNewUser(message)
-  replys.welcomToTheClub(bot,message)
 #################################################
 @bot.message_handler(commands=['radar'])
 def radar(message):
   gayRadar.gayRadarStart(bot,message, True)
 #################################################
 @bot.message_handler(commands=['stat'])
-def radar(message):
+def radarStat(message):
   gayRadar.score(bot,message, True, True)
 #################################################
 @bot.message_handler(commands=['backup'])
@@ -61,40 +63,108 @@ def backup(message):
       cache.pidorOfDayDate = date.fromisoformat(data['pidorOfDayDate'])
       cache.radarScoreStartingAt = date.fromisoformat(data['radarScoreStartingAt'])
       cache.chatUsers = data['chatUsers']
-      cache.pinndedMessageId  = int(data['pinndedMessageId'])
-      cache.pinndedMessageChatId  = int(data['pinndedMessageChatId'])
-      cache.whoPlayCs = data['whoPlayCs']
+      #cache.pinndedMessageId  = int(data['pinndedMessageId'])
+      #cache.pinndedMessageChatId  = int(data['pinndedMessageChatId'])
       cache.openaiToggle = data['openaiToggle']
+      cache.whoPlayCs = data['whoPlayCs']
 #################################################     Steam
+
 @bot.message_handler(commands=['steam'])
 def SteamRequest(message):
-  steam.steamRequest(bot,message,True)
+  steam.steamWhoFromSpermobakiOnlineRequest(bot,message.chat.id)
+
+#################################################     Translitterate
+@bot.message_handler(commands=['t'])
+def litterate(message):
+  transiteration.getter(bot,message)
+#################################################     P
+@bot.message_handler(commands=['p'])
+def handle_play(message):
+  user_markup = telebot.types.ReplyKeyboardMarkup(True,False)
+  user_markup = telebot.types.ReplyKeyboardMarkup()
+  user_markup.row ('/play')
+  user_markup.row ('/CS','/Dota')
+  user_markup.row ('/cancel')
+  bot.send_message(message.chat.id,'Play',reply_markup=user_markup)
+
+@bot.message_handler(commands=['cancel'])
+def handle_cancel(message):
+  hide_markup = telebot.types.ReplyKeyboardRemove()
+  bot.send_message(message.chat.id,'..', reply_markup=hide_markup)
+#################################################     Play
+@bot.message_handler(commands=['play'])
+def playGetter(message):
+  play.getter(bot, message,isNeedNewVote=False,asReply=False)
+
+@bot.message_handler(commands=['playn'])
+def playNewVote(message):
+  play.getter(bot, message,isNeedNewVote=True,asReply=False)
+
+@bot.message_handler(commands=['playm'])
+def playForceMention(message):
+  play.forceMentionRaport(bot,message)
+
+@bot.message_handler(commands=['playadd'])
+def playAddNewPlayer(message):
+  play.addPlayerToList(bot,message)
+
+@bot.message_handler(commands=['playrm'])
+def playRemovePlayer(message):
+  play.removePlayerFromList(bot, message)
+
+@bot.message_handler(commands=['playlist'])
+def playShowBlackList(message):
+  play.readListOfPlayers(bot, message,whatGame=False)
 
 #################################################     CS
 @bot.message_handler(commands=['cs'])
 def csCommand(message):
-  cs.csReq(bot, message,False)
+  play.getter(bot, message,isNeedNewVote=False,asReply=False)
 
 @bot.message_handler(commands=['csn'])
 def csNew(message):
-  cs.csReq(bot, message,True)
+  play.getter(bot, message,isNeedNewVote=True,asReply=False)
 
 @bot.message_handler(commands=['csm'])
 def csForceMention(message):
-  cs.readRaport(bot, message,True)
+  play.forceMentionRaport(bot,message)
 
 @bot.message_handler(commands=['csadd'])
 def csadduser(message):
-  cs.csadd(bot, message)
+  play.addPlayerToList(bot,message)
 
 @bot.message_handler(commands=['csrm'])
 def csremove(message):
-  cs.csrm(bot, message)
+  play.removePlayerFromList(bot, message)
 
 @bot.message_handler(commands=['cslist'])
 def csshowlist(message):
-  cs.cslist(bot, message)
+  play.readListOfPlayers(bot, message,whatGame=False)
+################################################# Dota
+@bot.message_handler(commands=['dota'])
+def dotaCommand(message):
+  play.getter(bot, message,isNeedNewVote=False,asReply=False)
 
+@bot.message_handler(commands=['dotan'])
+def dotaNew(message):
+  play.getter(bot, message,isNeedNewVote=True,asReply=False)
+
+@bot.message_handler(commands=['dotam'])
+def dotaForceMention(message):
+  play.forceMentionRaport(bot,message)
+
+@bot.message_handler(commands=['dotaadd'])
+def dotaadduser(message):
+  play.addPlayerToList(bot,message)
+
+@bot.message_handler(commands=['dotarm'])
+def dotaremove(message):
+  play.removePlayerFromList(bot, message)
+
+@bot.message_handler(commands=['dotalist'])
+def dotashowlist(message):
+  play.readListOfPlayers(bot, message,whatGame=False)
+#################################################
 @bot.message_handler(commands=['smart'])
 def oaiToggle(message):
   if message.from_user.id == andreiID:
@@ -160,10 +230,18 @@ def rename(message):
       user['last_name'] = message.from_user.last_name
       bot.send_message(message.chat.id, f'Твоё новое имя: {gayRadar.defineName(user)}')
 def addNewUser(message):
-  if message.from_user.id != bot.user.id:
-    if not any(d['id'] == message.from_user.id for d in cache.chatUsers):
-      cache.chatUsers.append({'id':message.from_user.id,'username':message.from_user.username,'first_name':message.from_user.first_name,'last_name':message.from_user.last_name,'score':0,'total_messages':0,'pidorStreak':0})
-
+  if message.reply_to_message:
+    q = message.reply_to_message
+    if q.id != bot.user.id:
+      if not any(d['id'] == q.id for d in cache.chatUsers):
+        cache.chatUsers.append({'id':q.id,'username':q.from_user.username,'first_name':q.from_user.first_name,'last_name':q.from_user.last_name,'score':0,'total_messages':0,'pidorStreak':0})
+        replys.welcomToTheClub(bot,message)      
+      else:
+        bot.send_message(message.chat.id, 'Он здесь уже давно :D')
+    else:
+      bot.send_message(message.chat.id, 'Не меня же, даун xD')
+  else:
+    bot.send_message(message.chat.id, 'Процитируй новичка, пупсик :*')
 #################################################
 @bot.message_handler()
 def handle_message(message):
@@ -175,31 +253,13 @@ def handle_message(message):
 
   if gayRadar.radarCheckDate() and gayRadar.radarCheckHour():
     gayRadar.gayRadarStart(bot, message, False)
+
   
   if message.reply_to_message:
-#################################################   #agro answer
-    if message.reply_to_message.from_user.id == bot.user.id:
-      if any(m == message.reply_to_message.id for m in cache.raports):
-        cs.csReq(bot, message,False)
-      elif cache.openaiToggle:
-        if len(oai.botHistory) == 0 or cache.historyLimit == 0:
-          oai.oaiMessageGetter(bot,message,True)
-          answer = False
-        else:
-          oai.oaiMessageGetter(bot,message,False)
-          answer = False
-      else:
-          if message.reply_to_message.text == 'Хуй на.🤣':
-            bot.reply_to(message, "Возьми два.🤣🤣🤣")
-          else:
-            personalAnswer = random.randint(1,3)
-            if personalAnswer == 1:
-              name = list(cache.spermachiList.keys())[list(cache.spermachiList.values()).index(message.from_user.id)]
-              bot.send_message(message.chat.id, f'Ай, {name}, иди нахуй.', reply_to_message_id=message.id)
-            else:
-              replys.replyFunc(bot,message)
-              answer = False
-          
+    if any(messageId == message.reply_to_message.id for messageId in (cache.playRaports + cache.csRaports + cache.dotaRaports)):
+        play.getter(bot,message,isNeedNewVote=False,asReply=True)
+        answer = False
+
 #################################################   #billy triger
     if answer and any(ext in message.text.lower() for ext in replys.billyTrigers):
           replys.replyFunc(bot,message)
@@ -247,12 +307,13 @@ def handle_message(message):
   cacheToSave['pinndedMessageId'] = cache.pinndedMessageId
   cacheToSave['pinndedMessageChatId'] = cache.pinndedMessageChatId
   cacheToSave['whoPlayCs'] = cache.whoPlayCs
+  cacheToSave['whoPlayDota'] = cache.whoPlayDota
+  cacheToSave['playBlackList'] = cache.playBlackList
   cacheToSave['openaiToggle'] = cache.openaiToggle
   cacheToSave['historyLimit'] = cache.historyLimit
 
   with open(f'{config.dataPath}/data/data.json', 'w') as outJason:  
     json.dump(cacheToSave, outJason,indent=4, sort_keys=True, default=str)
-
 
 
 bot.polling(non_stop=True)
