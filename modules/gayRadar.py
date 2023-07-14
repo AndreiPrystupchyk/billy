@@ -24,6 +24,8 @@ def radarCheckHour():
       return True
     else:
       return False
+    
+
 def checkradarScoreStartingAt():
   if cache.radarScoreStartingAt == '': return False
   else: return True
@@ -35,15 +37,19 @@ def gayRadarStart(bot,message,bool):
       cache.pidorOfDayDate = newDt
       cache.pidorOfDay = random.choice(cache.chatUsers)
       cache.pidorOfDay['score'] = cache.pidorOfDay['score'] + 1
-      if priviosPidorOfDay['id'] == cache.pidorOfDay['id']:
-        cache.pidorOfDay['streak'] += 1
-        messageFrom = cache.chatUsers[find(cache.chatUsers,'id',cache.pidorOfDay['id'])]
-        messageFrom['pidorStreak'] = cache.pidorOfDay['streak']
-      else:
+      try:  
+        if priviosPidorOfDay['id'] == cache.pidorOfDay['id']:
+          cache.pidorOfDay['streak'] += 1
+          messageFrom = cache.chatUsers[find(cache.chatUsers,'id',cache.pidorOfDay['id'])]
+          messageFrom['pidorStreak'] = cache.pidorOfDay['streak']
+        else:
+          cache.pidorOfDay['streak'] = 0
+      except:
         cache.pidorOfDay['streak'] = 0
       defindeAndSayPidorOfDay(bot,message,True)
     elif bool and cache.pidorOfDay != '':
       defindeAndSayPidorOfDay(bot,message,False)
+
 
 def defineName(user):
   if user != None or user != '':
@@ -61,6 +67,7 @@ def defineName(user):
       name = f'{first} {last}'
     return name
 
+
 def defindeAndSayPidorOfDay(bot,message,bool):
   name = defineName(cache.pidorOfDay)
   if bool:
@@ -71,7 +78,7 @@ def defindeAndSayPidorOfDay(bot,message,bool):
     except:
       print("Can`t unpin")
     if cache.pidorOfDay['streak'] != 0:
-      cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидарас дня сегодня {mention}🥳 Идёт со стриком в <b>{cache.pidorOfDay["streak"]}</b> подряд! И помни, брат, чем глубже - тем блольнее...',parse_mode="Markdown")
+      cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидарас дня сегодня {mention}🥳 Идёт со стриком в *{cache.pidorOfDay["streak"]}* подряд! И помни, брат, чем глубже - тем блольнее...',parse_mode="markdown")
     else:
       cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидарас дня сегодня {mention}🥳',parse_mode="Markdown")
     cache.pinndedMessageChatId = cache.pinndedMessage.chat.id
@@ -80,22 +87,24 @@ def defindeAndSayPidorOfDay(bot,message,bool):
     score(bot,message,False,True)
   else:
     if cache.pidorOfDay['streak'] != 0:
-      bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘. Идёт со стриком в <b>{cache.pidorOfDay["streak"]}</b> подряд!',parse_mode='html')
+      bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘. Идёт со стриком в *{cache.pidorOfDay["streak"]}* подряд!',parse_mode='markdown')
     else:
       bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘')
+
+
 def score(bot,message,totalMessagesBool, totalRadarBool):
   if checkradarScoreStartingAt():
-    statAnswer = f'<b>От {cache.radarScoreStartingAt}:</b>'
-    if totalMessagesBool:
-      statAnswer += '\n\nВсего сообщений:'
-      sortedList = sorted(cache.chatUsers, key=lambda d: d['total_messages'],reverse=True) 
-      for i in range(len(sortedList)):
-        name = defineName(sortedList[i])
-        statAnswer += f'\n<i>{name}: {sortedList[i]["total_messages"]}</i>'
+    statAnswer = f'*От {cache.radarScoreStartingAt}:*'
     if totalRadarBool:
-      statAnswer += '\n\n<b>Гейрадар:</b>'
+      statAnswer += '\n\n*Гейрадар:*'
       sortedList = sorted(cache.chatUsers, key=lambda d: d['score'],reverse=True) 
       for i in range(len(sortedList)):
         name = defineName(sortedList[i])
-        statAnswer += f'\n<b>{name}: {sortedList[i]["score"]}</b> (лучший cтрик: <i>{sortedList[i]["pidorStreak"]}</i>)'
-    bot.send_message(message.chat.id, statAnswer,parse_mode='html')
+        statAnswer += f'\n*{name}: {sortedList[i]["score"]}* (лучший cтрик: _{sortedList[i]["pidorStreak"]}_)'
+    if totalMessagesBool:
+      statAnswer += '\n\n*Всего сообщений:*'
+      sortedList = sorted(cache.chatUsers, key=lambda d: d['total_messages'],reverse=True) 
+      for i in range(len(sortedList)):
+        name = defineName(sortedList[i])
+        statAnswer += f'\n{name}: _{sortedList[i]["total_messages"]}_'
+    bot.send_message(message.chat.id, statAnswer,parse_mode='markdown')

@@ -214,38 +214,23 @@ def checkDateForPreviousDay(whatGame):
 
 def forceMentionRaport(bot, message):
   whatGame = determineGame(message,False)
-  status = ''
   listOfPlayers = ''
   respond = ''
   if whatGame == 'Play':
-    status = cache.playStatus
-    listOfPlayers = [member['name'] for member in cache.telegramList]
+    listOfPlayers = [member['name'] for member in cache.telegramList if member['name'] not in cache.playBlackList]
+    for i in range(len(listOfPlayers)):
+      respond += f'\n[{listOfPlayers[i]}](tg://user?id={[member for member in cache.telegramList if member.get("name") == listOfPlayers[i]][0]["tgId"]})'
   elif whatGame == 'CS':
-     status = cache.csStatus
-     listOfPlayers = cache.whoPlayCs
+    for i in range(len(cache.whoPlayCs)):
+      respond += f'\n[{cache.whoPlayCs[i]}](tg://user?id={[member for member in cache.telegramList if member.get("name") == cache.whoPlayCs[i]][0]["tgId"]})'
   elif whatGame == 'Dota':
-     status = cache.dotaStatus
-     listOfPlayers = cache.whoPlayDota
+    for i in range(len(cache.whoPlayDota)):
+      respond += f'\n[{cache.whoPlayDota[i]}](tg://user?id={[member for member in cache.telegramList if member.get("name") == cache.whoPlayDota[i]][0]["tgId"]})'
   else:
      print('forceMentionRaport() cannot be initiated because the game is not defined.')
      return
-  
-  nameFromWhoMessage = [item for item in cache.telegramList if item.get('tgId') == message.from_user.id][0]['name']
-  now = datetime.now()
-
-  for i in range(len(status)):
-    if status[i]['name'] == nameFromWhoMessage:
-      respond += f'\n{status[i]["name"]}: {status[i]["status"]} ({datetime.strptime(now.strftime("%H:%M:%S"),"%H:%M:%S") - datetime.strptime(status[i]["time"].strftime("%H:%M:%S"),"%H:%M:%S")} тому)'
-    else:
-        respond += f'\n[{status[i]["name"]}](tg://user?id={[member for member in listOfPlayers if member.get("name") == status[i]["name"]][0]["tgId"]}): {status[i]["status"]} ({datetime.strptime(now.strftime("%H:%M:%S"),"%H:%M:%S") - datetime.strptime(status[i]["time"].strftime("%H:%M:%S"),"%H:%M:%S")} тому)'
-    
-    for ii in range(len(listOfPlayers)):
-      if not any(member['name'] == listOfPlayers[ii] for member in status):
-        if listOfPlayers[ii] == nameFromWhoMessage:
-           respond += f'\n{listOfPlayers[ii]}: ?'
-        else:
-          respond += f'\n[{listOfPlayers[ii]}](tg://user?id={[member for member in cache.telegramList if member.get("name") == listOfPlayers[ii]][0]["tgId"]}): ?'
-    steam.steamWhoFromSpermobakiOnlineRequest(bot,message.chat.id)
+  bot.send_message(message.chat.id, respond,parse_mode="Markdown")
+  steam.steamWhoFromSpermobakiOnlineRequest(bot,message.chat.id)
 
 def addPlayerToList(bot, message):
   whatGame = determineGame(message,False)
