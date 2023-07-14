@@ -77,13 +77,17 @@ def SteamRequest(message):
 @bot.message_handler(commands=['t'])
 def litterate(message):
   transiteration.getter(bot,message)
+
+@bot.message_handler(commands=['i'])
+def oaiImage(message):
+  oai.oaiImageGenerator(bot,message)
 #################################################     P
-@bot.message_handler(commands=['p'])
+@bot.message_handler(commands=['menu'])
 def handle_play(message):
   user_markup = telebot.types.ReplyKeyboardMarkup(True,False)
   user_markup = telebot.types.ReplyKeyboardMarkup()
   user_markup.row ('/play')
-  user_markup.row ('/CS','/Dota')
+  user_markup.row ('/cs','/dota')
   user_markup.row ('/cancel')
   bot.send_message(message.chat.id,'Play',reply_markup=user_markup)
 
@@ -259,6 +263,28 @@ def handle_message(message):
     if any(messageId == message.reply_to_message.id for messageId in (cache.playRaports + cache.csRaports + cache.dotaRaports)):
         play.getter(bot,message,isNeedNewVote=False,asReply=True)
         answer = False
+
+    if message.reply_to_message.from_user.id == bot.user.id and answer:
+      if cache.openaiToggle:
+        if len(oai.botHistory) == 0 or cache.historyLimit == 0:
+          oai.oaiMessageGetter(bot,message,True)
+          answer = False
+        else:
+          oai.oaiMessageGetter(bot,message,False)
+          answer = False
+      else:
+          if message.reply_to_message.text == 'Хуй на.🤣':
+            bot.reply_to(message, "Возьми два.🤣🤣🤣")
+          else:
+            personalAnswer = random.randint(1,3)
+            if personalAnswer == 1:
+              nameFromWhoMessage = [item for item in cache.telegramList if item.get('tgId') == message.from_user.id][0]['name']
+              bot.send_message(message.chat.id, f'Ай, {nameFromWhoMessage}, иди нахуй.', reply_to_message_id=message.id)
+              answer = False
+            else:
+              replys.replyFunc(bot,message)
+              answer = False
+          
 
 #################################################   #billy triger
     if answer and any(ext in message.text.lower() for ext in replys.billyTrigers):
