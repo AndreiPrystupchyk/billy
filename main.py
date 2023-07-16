@@ -7,6 +7,7 @@ from datetime import date
 import modules.gayRadar as gayRadar
 import modules.oai as oai
 import modules.play as play
+import modules.randomChoice as randomChoice
 import random
 import json
 import modules.steam as steam
@@ -73,8 +74,14 @@ def backup(message):
 def SteamRequest(message):
   steam.steamWhoFromSpermobakiOnlineRequest(bot,message.chat.id)
 
+#################################################     Random
+
+@bot.message_handler(commands=['r','random'])
+def randomChoiceFunc(message):
+  randomChoice.randomChoice(bot,message)
+
 #################################################     Translitterate
-@bot.message_handler(commands=['t'])
+@bot.message_handler(commands=['t,transiteration'])
 def litterate(message):
   transiteration.getter(bot,message)
 
@@ -125,11 +132,11 @@ def playShowBlackList(message):
 def csCommand(message):
   play.getter(bot, message,isNeedNewVote=False,asReply=False)
 
-@bot.message_handler(commands=['csn'])
+@bot.message_handler(commands=['csn','csnew'])
 def csNew(message):
   play.getter(bot, message,isNeedNewVote=True,asReply=False)
 
-@bot.message_handler(commands=['csm'])
+@bot.message_handler(commands=['csm','csForceMention'])
 def csForceMention(message):
   play.forceMentionRaport(bot,message)
 
@@ -137,7 +144,7 @@ def csForceMention(message):
 def csadduser(message):
   play.addPlayerToList(bot,message)
 
-@bot.message_handler(commands=['csrm'])
+@bot.message_handler(commands=['csrm','csremove'])
 def csremove(message):
   play.removePlayerFromList(bot, message)
 
@@ -149,11 +156,11 @@ def csshowlist(message):
 def dotaCommand(message):
   play.getter(bot, message,isNeedNewVote=False,asReply=False)
 
-@bot.message_handler(commands=['dotan'])
+@bot.message_handler(commands=['dotan','dotanew'])
 def dotaNew(message):
   play.getter(bot, message,isNeedNewVote=True,asReply=False)
 
-@bot.message_handler(commands=['dotam'])
+@bot.message_handler(commands=['dotam','dotaForceMention'])
 def dotaForceMention(message):
   play.forceMentionRaport(bot,message)
 
@@ -161,7 +168,7 @@ def dotaForceMention(message):
 def dotaadduser(message):
   play.addPlayerToList(bot,message)
 
-@bot.message_handler(commands=['dotarm'])
+@bot.message_handler(commands=['dotarm','dotaremove'])
 def dotaremove(message):
   play.removePlayerFromList(bot, message)
 
@@ -181,7 +188,7 @@ def historyLim(message):
     cache.historyLimit = int(message.text.lower().replace('/historylimit ', ''))
     bot.send_message(message.chat.id, f'historyLimit: {cache.historyLimit}')
 
-@bot.message_handler(commands=['n'])
+@bot.message_handler(commands=['n','newrequestopenai'])
 def smrt(message):
   if cache.openaiToggle:
     oai.dequeLenOperator(True)
