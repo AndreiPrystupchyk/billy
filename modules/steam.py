@@ -30,12 +30,12 @@ def steamWhoFromSpermobakiOnlineRequest(bot,messageChatId):
                 miniGameName = 'CS:GO'
             if rich_presence != None:
                 gameRichPresence = soup.find("span", class_="rich_presence").contents[0]
-            answer += f'\n*{playerName}*: {miniGameName} {gameRichPresence}'
+            answer += f'\n<b>{playerName}</b>: {miniGameName} {gameRichPresence}'
 
 
         if isPersonaOnline:
             playerName = soup.find("span", class_="persona online").contents[0]
-            answer += f'\n*{playerName}*: online'
+            answer += f'\n<b>{playerName}</b>: Online'
     if answer == '':
         answer = 'Все спермачи offline :('
-    bot.send_message(messageChatId, answer,parse_mode="Markdown")
+    bot.send_message(messageChatId, answer,parse_mode="html")
