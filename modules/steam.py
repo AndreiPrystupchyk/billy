@@ -17,24 +17,23 @@ def steamWhoFromSpermobakiOnlineRequest(bot,messageChatId):
         soup = BeautifulSoup(pageRequest.content, "html.parser")
         isPersonaInGame = soup.find_all("span", {"class": "persona in-game"})
         isPersonaOnline = soup.find_all("span", {"class": "persona online"})
-        if isPersonaInGame or isPersonaOnline:
-            playerName = ''
-            miniGameName = ''
-            gameRichPresence = ''
-            rich_presence = ''
+        playerName = ''
+        miniGameName = ''
+        gameRichPresence = ''
+        rich_presence = ''
 
-            if isPersonaInGame:
-                playerName = soup.find("span", class_="persona in-game").contents[0]
-                miniGameName = soup.find("span", class_="miniprofile_game_name").contents[0]
-                rich_presence = soup.find("span", class_="rich_presence")
-                if rich_presence != None:
-                    gameRichPresence = soup.find("span", class_="rich_presence").contents[0]
-                answer += f'\n{playerName}: {miniGameName} {gameRichPresence}'
+        if isPersonaInGame:
+            playerName = soup.find("span", class_="persona in-game").contents[0]
+            miniGameName = soup.find("span", class_="miniprofile_game_name").contents[0]
+            rich_presence = soup.find("span", class_="rich_presence")
+            if rich_presence != None:
+                gameRichPresence = soup.find("span", class_="rich_presence").contents[0]
+            answer += f'\n{playerName}: {miniGameName} {gameRichPresence}'
 
 
-            if isPersonaOnline:
-                playerName = soup.find("span", class_="persona online").contents[0]
-                answer += f'\n{playerName}: online'
+        if isPersonaOnline:
+            playerName = soup.find("span", class_="persona online").contents[0]
+            answer += f'\n{playerName}: online'
     if answer == '':
         answer = 'Все спермачи offline :('
     bot.send_message(messageChatId, answer)
