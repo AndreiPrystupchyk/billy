@@ -2,6 +2,7 @@ import openai
 import config
 import cache
 from collections import deque
+from datetime import datetime
 
 openai.api_key = config.openaitoken
 
@@ -14,10 +15,10 @@ def removeBilly(message):
     return message.text.lower().replace('/n', '')
   elif message.text.lower().startswith('/n@spermobakibot'):
      return message.text.lower().replace('/n@spermobakibot', '')
-  elif message.text.lower().startswith('/i@spermobakibot'):
-     return message.text.lower().replace('/i@spermobakibot', '')
-  elif message.text.lower().startswith('/i'):
-    return message.text.lower().replace('/i', '')
+  elif message.text.lower().startswith('/gpt4@spermobakibot'):
+     return message.text.lower().replace('/gpt4@spermobakibot', '')
+  elif message.text.lower().startswith('/gpt4'):
+    return message.text.lower().replace('/gpt4', '')
   else:
      return message.text.lower()
   
@@ -34,15 +35,20 @@ def dequeLenOperator(delAllBool):
       usersHistory.popleft()
   return
 
-def oaiMessageGetter(bot,message,bool):
+def oaiMessageGetter(bot,message,isNeedWithoutHistory):
+    if message.chat.id != cache.spermobakichatid and message.chat.id != cache.andreichatid and message.chat.id != -1001816920514:
+      bot.send_message(message.chat.id, 'Не могу тебе отвечать ;(')
+      return
     fromWho = [item for item in cache.telegramList if item.get('tgId') == message.from_user.id][0]['name']
-    system_content = f'{cache.oaiBotRole} Ты сидишь в чате с {bioUsers}. Сейчас будешь отвечать на сообщение от {fromWho}.'
-    if bool:
+    todaysDate = datetime.today().strftime('%Y-%m-%d')
+    timeRightNow = datetime.today().strftime('%H:%M:%S')
+    system_content = f'{cache.oaiBotRole} Сейчас {todaysDate} дата, и время {timeRightNow}. Ты сидишь в чате с {bioUsers}. Сейчас будешь отвечать на сообщение от {fromWho}.'
+    if isNeedWithoutHistory:
       msg = removeBilly(message)
       messages = []
       messages.append({"role": "system", "content": system_content})
       messages.append({"role": "user", "content": msg})
-      usersHistory.append(msg)
+      usersHistory.append(f'{fromWho}: {msg}')
       try:
           response = openai.ChatCompletion.create(
                                       model="gpt-3.5-turbo",
@@ -51,27 +57,70 @@ def oaiMessageGetter(bot,message,bool):
                                       temperature=0.85)
           bot.reply_to(message, response['choices'][0]['message']['content'])
           botHistory.append(response['choices'][0]['message']['content'])
-      except:
-          bot.send_message(message.chat.id, 'error')
+      except Exception as e:
+        bot.send_message(message.chat.id, str(e))
     else:
       messages = []
       messages.append({"role": "system", "content": system_content})
-      usersHistory.append(message.text.lower())
+      usersHistory.append(f'{fromWho}: {message.text.lower()}')
       for i in range(len(usersHistory)):
         messages.append({'role':'user', 'content':usersHistory[i]})
         if i < len(botHistory):
           messages.append({'role':'assistant', 'content':botHistory[i]})
       try:
-          response = openai.ChatCompletion.create(
+        response = openai.ChatCompletion.create(
                                       model="gpt-3.5-turbo",
                                       messages=messages,
                                       max_tokens=1000,
                                       temperature=0.85)
-          bot.reply_to(message, response['choices'][0]['message']['content'])
-          botHistory.append(response['choices'][0]['message']['content'])
-          dequeLenOperator(False)
-      except:
-          bot.send_message(message.chat.id, 'error')
+        bot.reply_to(message, response['choices'][0]['message']['content'])
+        botHistory.append(response['choices'][0]['message']['content'])
+        dequeLenOperator(False)
+      except Exception as e:
+        bot.send_message(message.chat.id, str(e))
+
+def pdCongrats(bot,message):
+    todaysDate = datetime.today().strftime('%Y-%m-%d')
+    timeRightNow = datetime.today().strftime('%H:%M:%S')
+    name = [item for item in cache.telegramList if item.get('tgId') == cache.pidorOfDay['id']]
+    system_content = f'{cache.oaiBotRole}. Сейчас {todaysDate} дата, и время {timeRightNow}. Ты сидишь в чате c {bioUsers}. Твой гейрадар показал, что {name} сегодня пидарас дня, поздравь его с этим.'
+    messages = []
+    messages.append({"role": "system", "content": system_content})
+    try:
+        response = openai.ChatCompletion.create(
+                                      model="gpt-3.5-turbo",
+                                      messages=messages,
+                                      max_tokens=1000,
+                                      temperature=0.90)
+        bot.send_message(message.chat.id, response['choices'][0]['message']['content'])
+        botHistory.append(response['choices'][0]['message']['content'])
+    except Exception as e:
+      bot.send_message(message.chat.id, str(e))
+
+
+def gpt4(bot, message):
+  if message.chat.id != cache.spermobakichatid and message.chat.id != cache.andreichatid and message.chat.id != -1001816920514:
+    bot.send_message(message.chat.id, 'Не могу тебе отвечать ;(')
+    return
+  fromWho = [item for item in cache.telegramList if item.get('tgId') == message.from_user.id][0]['name']
+  todaysDate = datetime.today().strftime('%Y-%m-%d')
+  timeRightNow = datetime.today().strftime('%H:%M:%S')
+  system_content = f'Сейчас {todaysDate} дата, и время {timeRightNow}. Сейчас будешь отвечать на сообщение от {fromWho}.'
+  msg = removeBilly(message)
+  messages = []
+  messages.append({"role": "system", "content": system_content})
+  messages.append({"role": "user", "content": msg})
+  try:
+    response = openai.ChatCompletion.create(
+                                      model="gpt-4",
+                                      messages=messages,
+                                      max_tokens=1000,
+                                      temperature=0.8)
+    bot.reply_to(message, response['choices'][0]['message']['content'])
+    botHistory.append(response['choices'][0]['message']['content'])
+  except Exception as e:
+    bot.send_message(message.chat.id, str(e))
+
 
 
 

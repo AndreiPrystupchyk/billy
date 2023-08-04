@@ -1,6 +1,7 @@
 import cache
 from datetime import datetime
 import random
+from modules import oai
 
 
 def find(lst, key, value):
@@ -78,13 +79,14 @@ def defindeAndSayPidorOfDay(bot,message,bool):
     except:
       print("Can`t unpin")
     if cache.pidorOfDay['streak'] != 0:
-      cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидарас дня сегодня {mention}🥳 Идёт со стриком в *{cache.pidorOfDay["streak"]}* подряд! И помни, брат, чем глубже - тем блольнее...',parse_mode="markdown")
+      cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидарас дня сегодня {mention}🥳 Идёт со стриком в *{cache.pidorOfDay["streak"]}* подряд! И помни, брат, чем глубже - тем больнее...',parse_mode="markdown")
     else:
       cache.pinndedMessage = bot.send_message(message.chat.id, f'Пидарас дня сегодня {mention}🥳',parse_mode="Markdown")
     cache.pinndedMessageChatId = cache.pinndedMessage.chat.id
     cache.pinndedMessageId = cache.pinndedMessage.message_id
     bot.pin_chat_message(cache.pinndedMessage.chat.id, cache.pinndedMessage.message_id)
     score(bot,message,False,True)
+    oai.pdCongrats(bot,message)
   else:
     if cache.pidorOfDay['streak'] != 0:
       bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘. Идёт со стриком в *{cache.pidorOfDay["streak"]}* подряд!',parse_mode='markdown')
