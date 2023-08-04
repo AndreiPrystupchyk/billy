@@ -34,6 +34,7 @@ try:
     cache.playBlackList = data['playBlackList']
     cache.openaiToggle = data['openaiToggle']
     cache.historyLimit = int(data['historyLimit'])
+    cache.gpt4Bool = data['gpt4Bool']
 
 except:
   print("load data error")
@@ -76,18 +77,24 @@ def SteamRequest(message):
 
 #################################################     Random
 
-@bot.message_handler(commands=['r','random'])
+@bot.message_handler(commands=['r','random','R','Random','RANDOM'])
 def randomChoiceFunc(message):
   randomChoice.randomChoice(bot,message)
 
 #################################################     Translitterate
-@bot.message_handler(commands=['t,transiteration'])
+@bot.message_handler(commands=['t,transiteration','T'])
 def litterate(message):
   transiteration.getter(bot,message)
 
-@bot.message_handler(commands=['i'])
-def oaiImage(message):
-  oai.oaiImageGenerator(bot,message)
+
+#@bot.message_handler(commands=['chatid'])
+#def chatid(message):
+#  if message.from_user.id == andreiID:
+#    bot.send_message(message.chat.id,message.chat.id)
+#
+#@bot.message_handler(commands=['i'])
+#def oaiImage(message):
+#  oai.oaiImageGenerator(bot,message)
 #################################################     P
 @bot.message_handler(commands=['menu'])
 def handle_play(message):
@@ -103,40 +110,40 @@ def handle_cancel(message):
   hide_markup = telebot.types.ReplyKeyboardRemove()
   bot.send_message(message.chat.id,'..', reply_markup=hide_markup)
 #################################################     Play
-@bot.message_handler(commands=['play'])
+@bot.message_handler(commands=['play','Play','PLAY'])
 def playGetter(message):
   play.getter(bot, message,isNeedNewVote=False,asReply=False)
 
-@bot.message_handler(commands=['playn'])
+@bot.message_handler(commands=['playn','Playn','PLAYN'])
 def playNewVote(message):
   play.getter(bot, message,isNeedNewVote=True,asReply=False)
 
-@bot.message_handler(commands=['playm'])
+@bot.message_handler(commands=['playm','Playm','PLAYM'])
 def playForceMention(message):
   play.forceMentionRaport(bot,message)
 
-@bot.message_handler(commands=['playadd'])
+@bot.message_handler(commands=['playadd','Playadd','PLAYADD'])
 def playAddNewPlayer(message):
   play.addPlayerToList(bot,message)
 
-@bot.message_handler(commands=['playrm'])
+@bot.message_handler(commands=['playrm','Playrm','PLAYRM'])
 def playRemovePlayer(message):
   play.removePlayerFromList(bot, message)
 
-@bot.message_handler(commands=['playlist'])
+@bot.message_handler(commands=['playlist','Playlist','PLAYLIST'])
 def playShowBlackList(message):
   play.readListOfPlayers(bot, message,whatGame=False)
 
 #################################################     CS
-@bot.message_handler(commands=['cs'])
+@bot.message_handler(commands=['cs','CS','Cs'])
 def csCommand(message):
   play.getter(bot, message,isNeedNewVote=False,asReply=False)
 
-@bot.message_handler(commands=['csn','csnew'])
+@bot.message_handler(commands=['csn','csnew','Csn','CSN','Csnew','CSNEW'])
 def csNew(message):
   play.getter(bot, message,isNeedNewVote=True,asReply=False)
 
-@bot.message_handler(commands=['csm','csForceMention'])
+@bot.message_handler(commands=['csm','csForceMention','CSM','Csm'])
 def csForceMention(message):
   play.forceMentionRaport(bot,message)
 
@@ -152,15 +159,15 @@ def csremove(message):
 def csshowlist(message):
   play.readListOfPlayers(bot, message,whatGame=False)
 ################################################# Dota
-@bot.message_handler(commands=['dota'])
+@bot.message_handler(commands=['dota','Dota','DOTA'])
 def dotaCommand(message):
   play.getter(bot, message,isNeedNewVote=False,asReply=False)
 
-@bot.message_handler(commands=['dotan','dotanew'])
+@bot.message_handler(commands=['dotan','dotanew','Dotan','DOTAN'])
 def dotaNew(message):
   play.getter(bot, message,isNeedNewVote=True,asReply=False)
 
-@bot.message_handler(commands=['dotam','dotaForceMention'])
+@bot.message_handler(commands=['dotam','dotaForceMention','Dotam','DOTAM'])
 def dotaForceMention(message):
   play.forceMentionRaport(bot,message)
 
@@ -182,6 +189,12 @@ def oaiToggle(message):
     cache.openaiToggle = not cache.openaiToggle
     bot.send_message(message.chat.id, f'OpenAI Billy: {cache.openaiToggle}')
 
+@bot.message_handler(commands=['smart4'])
+def oai4Toggle(message):
+  if message.from_user.id == andreiID:
+    cache.gpt4Bool = not cache.gpt4Bool
+    bot.send_message(message.chat.id, f'GPT4: {cache.gpt4Bool}')
+
 @bot.message_handler(commands=['historyLimit'])
 def historyLim(message):
   if message.from_user.id == andreiID:
@@ -193,6 +206,14 @@ def smrt(message):
   if cache.openaiToggle:
     oai.dequeLenOperator(True)
     oai.oaiMessageGetter(bot, message,True)
+  else:
+    bot.send_message(message.chat.id, 'Функция отключена ;(')
+
+
+@bot.message_handler(commands=['4','gpt4'])
+def gpt4Model(message):
+  if cache.gpt4Bool:
+    oai.gpt4(bot, message)
   else:
     bot.send_message(message.chat.id, 'Функция отключена ;(')
 
@@ -344,6 +365,7 @@ def handle_message(message):
   cacheToSave['playBlackList'] = cache.playBlackList
   cacheToSave['openaiToggle'] = cache.openaiToggle
   cacheToSave['historyLimit'] = cache.historyLimit
+  cacheToSave['gpt4Bool'] = cache.gpt4Bool
 
   with open(f'{config.dataPath}/data/data.json', 'w') as outJason:  
     json.dump(cacheToSave, outJason,indent=4, sort_keys=True, default=str)
