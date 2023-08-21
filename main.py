@@ -8,6 +8,7 @@ import modules.gayRadar as gayRadar
 import modules.oai as oai
 import modules.play as play
 import modules.randomChoice as randomChoice
+import modules.counter as counter
 import random
 import json
 import modules.steam as steam
@@ -35,6 +36,7 @@ try:
     cache.openaiToggle = data['openaiToggle']
     cache.historyLimit = int(data['historyLimit'])
     cache.gpt4Bool = data['gpt4Bool']
+    cache.counterData = data['counterData']
 
 except:
   print("load data error")
@@ -217,6 +219,14 @@ def gpt4Model(message):
   else:
     bot.send_message(message.chat.id, 'Функция отключена ;(')
 
+@bot.message_handler(commands=['counter','c'])
+def counterFunc(message):
+  counter.counterGetter(bot,message,False)
+
+@bot.message_handler(commands=['counterNew','cn'])
+def counterNewFunc(message):
+  counter.counterGetter(bot,message,True)
+
 #################################################
 @bot.message_handler(commands=['radarReset'])
 def radarReset(message):
@@ -366,6 +376,7 @@ def handle_message(message):
   cacheToSave['openaiToggle'] = cache.openaiToggle
   cacheToSave['historyLimit'] = cache.historyLimit
   cacheToSave['gpt4Bool'] = cache.gpt4Bool
+  cacheToSave['counterData'] = cache.counterData
 
   with open(f'{config.dataPath}/data/data.json', 'w') as outJason:  
     json.dump(cacheToSave, outJason,indent=4, sort_keys=True, default=str)
