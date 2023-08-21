@@ -1,7 +1,7 @@
 import cache
 from datetime import datetime
 import random
-from modules import oai
+from modules import oai,counter
 
 
 def find(lst, key, value):
@@ -87,6 +87,7 @@ def defindeAndSayPidorOfDay(bot,message,bool):
     bot.pin_chat_message(cache.pinndedMessage.chat.id, cache.pinndedMessage.message_id)
     score(bot,message,False,True)
     oai.pdCongrats(bot,message)
+    counter.readCount(bot,message.chat.id)
   else:
     if cache.pidorOfDay['streak'] != 0:
       bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘. Идёт со стриком в *{cache.pidorOfDay["streak"]}* подряд!',parse_mode='markdown')
