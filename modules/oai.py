@@ -3,6 +3,7 @@ import config
 import cache
 from collections import deque
 from datetime import datetime
+import random
 
 openai.api_key = config.openaitoken
 
@@ -42,7 +43,7 @@ def oaiMessageGetter(bot,message,isNeedWithoutHistory):
     fromWho = [item for item in cache.telegramList if item.get('tgId') == message.from_user.id][0]['name']
     todaysDate = datetime.today().strftime('%Y-%m-%d')
     timeRightNow = datetime.today().strftime('%H:%M:%S')
-    system_content = f'{cache.oaiBotRole} Сейчас {todaysDate} дата, и время {timeRightNow}. Ты сидишь в чате с {bioUsers}. Сейчас будешь отвечать на сообщение от {fromWho}.'
+    system_content = f'{random.choice(cache.oaiBotRole)} Сейчас {todaysDate} дата, и время {timeRightNow}. Ты сидишь в чате с {bioUsers}. Сейчас будешь отвечать на сообщение от {fromWho}.'
     if isNeedWithoutHistory:
       msg = removeBilly(message)
       messages = []
@@ -83,7 +84,7 @@ def pdCongrats(bot,message):
     todaysDate = datetime.today().strftime('%Y-%m-%d')
     timeRightNow = datetime.today().strftime('%H:%M:%S')
     name = [item for item in cache.telegramList if item.get('tgId') == cache.pidorOfDay['id']]
-    system_content = f'{cache.oaiBotRole}. Сейчас {todaysDate} дата, и время {timeRightNow}. Ты сидишь в чате c {bioUsers}. Твой гейрадар показал, что {name} сегодня пидарас дня, поздравь его с этим.'
+    system_content = f'{cache.oaiBotRole}. Сейчас {todaysDate} дата, и время {timeRightNow}. Ты сидишь в чате c {bioUsers}. Твой гейрадар показал, что {name[0]["name"]} сегодня пидарас дня, поздравь его с этим.'
     messages = []
     messages.append({"role": "system", "content": system_content})
     try:

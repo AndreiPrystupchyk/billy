@@ -86,8 +86,10 @@ def defindeAndSayPidorOfDay(bot,message,bool):
     cache.pinndedMessageId = cache.pinndedMessage.message_id
     bot.pin_chat_message(cache.pinndedMessage.chat.id, cache.pinndedMessage.message_id)
     score(bot,message,False,True)
-    oai.pdCongrats(bot,message)
-    counter.readCount(bot,message.chat.id)
+    if not cache.counterData == '':
+      counter.readCount(bot,message.chat.id)
+    if cache.openaiToggle:
+      oai.pdCongrats(bot,message)
   else:
     if cache.pidorOfDay['streak'] != 0:
       bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘. Идёт со стриком в *{cache.pidorOfDay["streak"]}* подряд!',parse_mode='markdown')

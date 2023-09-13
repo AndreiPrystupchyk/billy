@@ -57,3 +57,8 @@ def readCount(bot,chatID):
         else: 
             counterString = f'Осталось: {ends - start}'
         bot.send_message(chatID, counterString)
+    else:
+        bot.send_message(chatID, 'counter is empty bro :(')
+
+def clearCounterData():
+    cache.counterData = ''
