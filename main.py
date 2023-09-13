@@ -98,23 +98,13 @@ def litterate(message):
 #def oaiImage(message):
 #  oai.oaiImageGenerator(bot,message)
 #################################################     P
-@bot.message_handler(commands=['menu'])
-def handle_play(message):
-  user_markup = telebot.types.ReplyKeyboardMarkup(True,False)
-  user_markup = telebot.types.ReplyKeyboardMarkup()
-  user_markup.row ('/play')
-  user_markup.row ('/cs','/dota')
-  user_markup.row ('/cancel')
-  bot.send_message(message.chat.id,'Play',reply_markup=user_markup)
 
-@bot.message_handler(commands=['cancel'])
-def handle_cancel(message):
-  hide_markup = telebot.types.ReplyKeyboardRemove()
-  bot.send_message(message.chat.id,'..', reply_markup=hide_markup)
 #################################################     Play
 @bot.message_handler(commands=['play','Play','PLAY'])
 def playGetter(message):
   play.getter(bot, message,isNeedNewVote=False,asReply=False)
+
+
 
 @bot.message_handler(commands=['playn','Playn','PLAYN'])
 def playNewVote(message):
@@ -226,6 +216,10 @@ def counterFunc(message):
 @bot.message_handler(commands=['counterNew','cn'])
 def counterNewFunc(message):
   counter.counterGetter(bot,message,True)
+
+@bot.message_handler(commands=['counterReset','cr'])
+def clearCounter():
+  counter.clearCounterData()
 
 #################################################
 @bot.message_handler(commands=['radarReset'])
