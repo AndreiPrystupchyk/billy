@@ -84,7 +84,8 @@ def pdCongrats(bot,message):
     todaysDate = datetime.today().strftime('%Y-%m-%d')
     timeRightNow = datetime.today().strftime('%H:%M:%S')
     name = [item for item in cache.telegramList if item.get('tgId') == cache.pidorOfDay['id']]
-    system_content = f'{cache.oaiBotRole}. Сейчас {todaysDate} дата, и время {timeRightNow}. Ты сидишь в чате c {bioUsers}. Твой гейрадар показал, что {name[0]["name"]} сегодня пидарас дня, поздравь его с этим.'
+    userBio = [sentence for sentence in cache.oaiBioUsers.split('.') if name[0]['name'] in sentence]
+    system_content = f'{cache.oaiBotRole}. Сейчас {todaysDate} дата, и время {timeRightNow}. Твой гейрадар показал, что {name[0]["name"]} сегодня пидарас дня, поздравь его с этим. {userBio}.'
     messages = []
     messages.append({"role": "system", "content": system_content})
     try:
