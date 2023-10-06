@@ -89,11 +89,6 @@ def litterate(message):
   transiteration.getter(bot,message)
 
 
-#@bot.message_handler(commands=['chatid'])
-#def chatid(message):
-#  if message.from_user.id == andreiID:
-#    bot.send_message(message.chat.id,message.chat.id)
-#
 #@bot.message_handler(commands=['i'])
 #def oaiImage(message):
 #  oai.oaiImageGenerator(bot,message)
@@ -218,7 +213,7 @@ def counterNewFunc(message):
   counter.counterGetter(bot,message,True)
 
 @bot.message_handler(commands=['counterReset','cr'])
-def clearCounter():
+def clearCounter(message):
   counter.clearCounterData()
 
 #################################################
