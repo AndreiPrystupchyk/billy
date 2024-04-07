@@ -21,11 +21,10 @@ def radarCheckDate():
 
 def radarCheckHour():
     newHour = int(datetime.now().strftime("%H"))
-    if newHour >= 6:
+    if newHour > 7:
       return True
     else:
       return False
-    
 
 def checkradarScoreStartingAt():
   if cache.radarScoreStartingAt == '': return False
@@ -36,13 +35,19 @@ def gayRadarStart(bot,message,bool):
       priviosPidorOfDay = cache.pidorOfDay
       newDt = datetime.now().date()
       cache.pidorOfDayDate = newDt
-      cache.pidorOfDay = random.choice(cache.chatUsers)
+      while True:
+          cache.pidorOfDay = random.choice(cache.chatUsers)
+          if not any(item['tgId'] == cache.pidorOfDay['id'] for item in cache.lohList): 
+              break
       cache.pidorOfDay['score'] = cache.pidorOfDay['score'] + 1
       try:  
         if priviosPidorOfDay['id'] == cache.pidorOfDay['id']:
-          cache.pidorOfDay['streak'] += 1
-          messageFrom = cache.chatUsers[find(cache.chatUsers,'id',cache.pidorOfDay['id'])]
-          messageFrom['pidorStreak'] = cache.pidorOfDay['streak']
+          if cache.pidorOfDay['streak'] == 0:
+            cache.pidorOfDay['streak'] = 2
+          else:
+            cache.pidorOfDay['streak'] += 1
+            if cache.pidorOfDay['streak'] > cache.pidorOfDay['pidorStreak']:
+              cache.pidorOfDay['pidorStreak'] = cache.pidorOfDay['streak']
         else:
           cache.pidorOfDay['streak'] = 0
       except:
@@ -102,10 +107,15 @@ def score(bot,message,totalMessagesBool, totalRadarBool):
     statAnswer = f'*От {cache.radarScoreStartingAt}:*'
     if totalRadarBool:
       statAnswer += '\n\n*Гейрадар:*'
-      sortedList = sorted(cache.chatUsers, key=lambda d: d['score'],reverse=True) 
+      radarUnsortedList = []
+      for i in range(len(cache.chatUsers)):
+        if not any(x['tgId'] == cache.chatUsers[i]['id'] for x in cache.lohList):
+          radarUnsortedList.append(cache.chatUsers[i])
+      sortedList = sorted(radarUnsortedList, key=lambda d: d['score'],reverse=True)
       for i in range(len(sortedList)):
         name = defineName(sortedList[i])
         statAnswer += f'\n*{name}: {sortedList[i]["score"]}* (лучший cтрик: _{sortedList[i]["pidorStreak"]}_)'
+
     if totalMessagesBool:
       statAnswer += '\n\n*Всего сообщений:*'
       sortedList = sorted(cache.chatUsers, key=lambda d: d['total_messages'],reverse=True) 

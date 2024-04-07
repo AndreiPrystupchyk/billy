@@ -26,8 +26,8 @@ def steamWhoFromSpermobakiOnlineRequest(bot,messageChatId):
             playerName = soup.find("span", class_="persona in-game").contents[0]
             miniGameName = soup.find("span", class_="miniprofile_game_name").contents[0]
             rich_presence = soup.find("span", class_="rich_presence")
-            if miniGameName == 'Counter-Strike: Global Offensive':
-                miniGameName = 'CS:GO'
+            if miniGameName == 'Counter-Strike 2':
+                miniGameName = 'CS2'
             if rich_presence != None:
                 gameRichPresence = soup.find("span", class_="rich_presence").contents[0]
             answer += f'\n<b>{playerName}</b>: {miniGameName} {gameRichPresence}'

@@ -36,6 +36,23 @@ def dequeLenOperator(delAllBool):
       usersHistory.popleft()
   return
 
+def vadimNahui(bot,message):
+  todaysDate = datetime.today().strftime('%Y-%m-%d')
+  timeRightNow = datetime.today().strftime('%H:%M:%S')
+  system_content = f'{cache.oaiBotRole}. Сейчас {todaysDate} дата, и время {timeRightNow}. Ты должен жестко унизить Вадима. Вот про него информация: {random.choice(["пидор", "говноед", "дальнобойщик", "пальцы выглядят как сосиски", "свинья", "пёс", "любит когда у него сидят на лице", "ворует игрушечные машинки из магазинов поэтому он четырнадцатый друг Оушена"])}'
+  messages = []
+  messages.append({"role": "system", "content": system_content})
+  try:
+    response = openai.ChatCompletion.create(
+                                      model="gpt-3.5-turbo-0125",
+                                      messages=messages,
+                                      max_tokens=1000,
+                                      temperature=0.90)
+    bot.send_message(message.chat.id, response['choices'][0]['message']['content'])
+    botHistory.append(response['choices'][0]['message']['content'])
+  except Exception as e:
+    bot.send_message(message.chat.id, str(e))
+
 def oaiMessageGetter(bot,message,isNeedWithoutHistory):
     if message.chat.id != cache.spermobakichatid and message.chat.id != cache.andreichatid and message.chat.id != -1001816920514:
       bot.send_message(message.chat.id, 'Не могу тебе отвечать ;(')
@@ -52,7 +69,7 @@ def oaiMessageGetter(bot,message,isNeedWithoutHistory):
       usersHistory.append(f'{fromWho}: {msg}')
       try:
           response = openai.ChatCompletion.create(
-                                      model="gpt-3.5-turbo",
+                                      model="gpt-3.5-turbo-0125",
                                       messages=messages,
                                       max_tokens=1000,
                                       temperature=0.85)
@@ -70,7 +87,7 @@ def oaiMessageGetter(bot,message,isNeedWithoutHistory):
           messages.append({'role':'assistant', 'content':botHistory[i]})
       try:
         response = openai.ChatCompletion.create(
-                                      model="gpt-3.5-turbo",
+                                      model="gpt-3.5-turbo-0125",
                                       messages=messages,
                                       max_tokens=1000,
                                       temperature=0.85)
@@ -90,7 +107,7 @@ def pdCongrats(bot,message):
     messages.append({"role": "system", "content": system_content})
     try:
         response = openai.ChatCompletion.create(
-                                      model="gpt-3.5-turbo",
+                                      model="gpt-3.5-turbo-0125",
                                       messages=messages,
                                       max_tokens=1000,
                                       temperature=0.90)

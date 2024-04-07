@@ -19,7 +19,6 @@ def getter(bot,message,isNeedNewVote,asReply):
     playDota(bot,message.chat.id,messageId,nameFromWhoMessage,messageWithoutPrefix,isNeedNewVote,whatGame,asReply)
     
 
-
 #################################################
 
 def determineGame(message,asReply):
@@ -51,6 +50,7 @@ def removePrefix(input_string):
         modified_string = input_string
 
     return modified_string
+
 
 #################################################
 
