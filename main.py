@@ -41,10 +41,34 @@ try:
 except:
   print("load data error")
 
+def saveCachToDataJson():
+  cacheToSave = {}
+  cacheToSave['pidorOfDay'] = cache.pidorOfDay
+  cacheToSave['pidorOfDayDate'] = cache.pidorOfDayDate
+  cacheToSave['radarScoreStartingAt'] = cache.radarScoreStartingAt
+  cacheToSave['chatUsers'] = cache.chatUsers 
+  cacheToSave['pinndedMessageId'] = cache.pinndedMessageId
+  cacheToSave['pinndedMessageChatId'] = cache.pinndedMessageChatId
+  cacheToSave['whoPlayCs'] = cache.whoPlayCs
+  cacheToSave['whoPlayDota'] = cache.whoPlayDota
+  cacheToSave['playBlackList'] = cache.playBlackList
+  cacheToSave['openaiToggle'] = cache.openaiToggle
+  cacheToSave['historyLimit'] = cache.historyLimit
+  cacheToSave['gpt4Bool'] = cache.gpt4Bool
+  cacheToSave['counterData'] = cache.counterData
+  with open(f'{config.dataPath}/data/data.json', 'w') as outJason:  
+    json.dump(cacheToSave, outJason,indent=4, sort_keys=True, default=str)
+
 #################################################
 @bot.message_handler(content_types=['voice']) 
 def handle_voice(message):
   bot.reply_to(message,'Спасибо за голосовое, петушара.👆',parse_mode='HTML')
+#################################################
+
+@bot.message_handler(commands=['vadimpidor']) 
+def vadimPidorr(message):
+  oai.vadimNahui(bot,message)
+
 #################################################
 @bot.message_handler(commands=['newChatMember'])
 def newMember(message):
@@ -84,7 +108,7 @@ def randomChoiceFunc(message):
   randomChoice.randomChoice(bot,message)
 
 #################################################     Translitterate
-@bot.message_handler(commands=['t,transiteration','T'])
+@bot.message_handler(commands=['t','transiteration','T'])
 def litterate(message):
   transiteration.getter(bot,message)
 
@@ -92,7 +116,7 @@ def litterate(message):
 #@bot.message_handler(commands=['i'])
 #def oaiImage(message):
 #  oai.oaiImageGenerator(bot,message)
-#################################################     P
+#################################################     
 
 #################################################     Play
 @bot.message_handler(commands=['play','Play','PLAY'])
@@ -216,41 +240,30 @@ def counterNewFunc(message):
 def clearCounter(message):
   counter.clearCounterData()
 
-#################################################
-@bot.message_handler(commands=['radarReset'])
-def radarReset(message):
-  if message.from_user.id == andreiID:
-    cache.pidorOfDay = ''
-    cache.pidorOfDayDate = ''
-    bot.unpin_chat_message(cache.pinndedMessageChatId,cache.pinndedMessageId)
-    cache.pinndedMessageId = ''
-    cache.pinndedMessageChatId = ''
-    bot.send_message(message.chat.id, 'Ты опустошил мой бак...')
+
 #################################################
 def find(lst, key, value):
     for i, dic in enumerate(lst):
         if dic[key] == value:
             return i
     return -1
-################################################# pidor streak 0
-@bot.message_handler(commands=['pidorstreak'])
-def pds(message):
-  if message.from_user.id == andreiID:
-    for i in range(len(cache.chatUsers)):
-      cache.chatUsers[i]['pidorStreak'] = 0
+#################################################
+
 #################################################
 @bot.message_handler(commands=['statReset'])
-def radarReset(message):
-  cache.radarScoreStartingAt = ''
-  cache.pidorOfDay = ''
-  cache.pidorOfDayDate = ''
+def statsReset(message):
   if message.from_user.id == andreiID:
+    bot.unpin_chat_message(cache.pinndedMessageChatId,cache.pinndedMessageId)
+    cache.pinndedMessageChatId = ''
+    cache.pinndedMessageId = ''
+    cache.radarScoreStartingAt = ''
+    cache.pidorOfDay = ''
+    cache.pidorOfDayDate = ''
     for i in range(len(cache.chatUsers)):
       cache.chatUsers[i]['score'] = 0
-    for i in range(len(cache.chatUsers)):
       cache.chatUsers[i]['total_messages'] = 0
-    for i in range(len(cache.chatUsers)):
       cache.chatUsers[i]['pidorStreak'] = 0
+    saveCachToDataJson()
     bot.send_message(message.chat.id, 'Ты опустошил мой бак...')
 #################################################
 @bot.message_handler(commands=['renameme'])
@@ -350,25 +363,9 @@ def handle_message(message):
 #################################################    #ebiot?
     if answer and message.text.endswith('?') and random.randint(1,12) == 1:
       replys.ebiot(bot,message)
-  
 
-  cacheToSave = {}
-  cacheToSave['pidorOfDay'] = cache.pidorOfDay
-  cacheToSave['pidorOfDayDate'] = cache.pidorOfDayDate
-  cacheToSave['radarScoreStartingAt'] = cache.radarScoreStartingAt
-  cacheToSave['chatUsers'] = cache.chatUsers 
-  cacheToSave['pinndedMessageId'] = cache.pinndedMessageId
-  cacheToSave['pinndedMessageChatId'] = cache.pinndedMessageChatId
-  cacheToSave['whoPlayCs'] = cache.whoPlayCs
-  cacheToSave['whoPlayDota'] = cache.whoPlayDota
-  cacheToSave['playBlackList'] = cache.playBlackList
-  cacheToSave['openaiToggle'] = cache.openaiToggle
-  cacheToSave['historyLimit'] = cache.historyLimit
-  cacheToSave['gpt4Bool'] = cache.gpt4Bool
-  cacheToSave['counterData'] = cache.counterData
 
-  with open(f'{config.dataPath}/data/data.json', 'w') as outJason:  
-    json.dump(cacheToSave, outJason,indent=4, sort_keys=True, default=str)
 
+  saveCachToDataJson()
 
 bot.polling(non_stop=True)
