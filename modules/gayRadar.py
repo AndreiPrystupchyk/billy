@@ -9,6 +9,7 @@ def find(lst, key, value):
         if dic[key] == value:
             return i
     return -1
+
 def radarCheckDate():
   newDate = datetime.now().date()
   if not checkradarScoreStartingAt():
@@ -21,7 +22,7 @@ def radarCheckDate():
 
 def radarCheckHour():
     newHour = int(datetime.now().strftime("%H"))
-    if newHour > 7:
+    if newHour >= 6:
       return True
     else:
       return False
