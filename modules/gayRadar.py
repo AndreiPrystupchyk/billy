@@ -1,7 +1,7 @@
 import cache
 from datetime import datetime
 import random
-from modules import oai,counter
+from modules import oai,counter, happyBirthday
 
 
 def find(lst, key, value):
@@ -101,6 +101,7 @@ def defindeAndSayPidorOfDay(bot,message,bool):
       bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘. Идёт со стриком в *{cache.pidorOfDay["streak"]}* подряд!',parse_mode='markdown')
     else:
       bot.send_message(message.chat.id, f'Пидрила дня сегодня {name}😘')
+  happyBirthday.happyBirthday(bot, message)
 
 
 def score(bot,message,totalMessagesBool, totalRadarBool):

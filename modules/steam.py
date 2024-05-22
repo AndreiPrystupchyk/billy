@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 from functools import reduce
 from time import sleep
 
-
 def steamWhoFromSpermobakiOnlineRequest(bot,messageChatId):
     listOfPlayersID = reduce((lambda x, y: x+y) , list(member["steamId"] for member in cache.steamList))
     answer = ''

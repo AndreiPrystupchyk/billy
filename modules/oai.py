@@ -18,8 +18,8 @@ def removeBilly(message):
      return message.text.lower().replace('/n@spermobakibot', '')
   elif message.text.lower().startswith('/gpt4@spermobakibot'):
      return message.text.lower().replace('/gpt4@spermobakibot', '')
-  elif message.text.lower().startswith('/gpt4'):
-    return message.text.lower().replace('/gpt4', '')
+  elif message.text.lower().startswith('@spermobakibot'):
+    return message.text.lower().replace('@spermobakibot ', '')
   else:
      return message.text.lower()
   
@@ -69,7 +69,7 @@ def oaiMessageGetter(bot,message,isNeedWithoutHistory):
       usersHistory.append(f'{fromWho}: {msg}')
       try:
           response = openai.ChatCompletion.create(
-                                      model="gpt-3.5-turbo-0125",
+                                      model="gpt-4o",
                                       messages=messages,
                                       max_tokens=1000,
                                       temperature=0.85)
@@ -87,7 +87,7 @@ def oaiMessageGetter(bot,message,isNeedWithoutHistory):
           messages.append({'role':'assistant', 'content':botHistory[i]})
       try:
         response = openai.ChatCompletion.create(
-                                      model="gpt-3.5-turbo-0125",
+                                      model="gpt-4o",
                                       messages=messages,
                                       max_tokens=1000,
                                       temperature=0.85)
@@ -116,6 +116,19 @@ def pdCongrats(bot,message):
     except Exception as e:
       bot.send_message(message.chat.id, str(e))
 
+def birthdayCongrats(bot, message, system_content):
+    messages = []
+    messages.append({"role": "system", "content": system_content})
+    try:
+        response = openai.ChatCompletion.create(
+                                      model="gpt-3.5-turbo-0125",
+                                      messages=messages,
+                                      max_tokens=1000,
+                                      temperature=0.90)
+        bot.send_message(message.chat.id, response['choices'][0]['message']['content'])
+        botHistory.append(response['choices'][0]['message']['content'])
+    except Exception as e:
+      bot.send_message(message.chat.id, str(e))
 
 def gpt4(bot, message):
   if message.chat.id != cache.spermobakichatid and message.chat.id != cache.andreichatid and message.chat.id != -1001816920514:
@@ -131,7 +144,7 @@ def gpt4(bot, message):
   messages.append({"role": "user", "content": msg})
   try:
     response = openai.ChatCompletion.create(
-                                      model="gpt-4",
+                                      model="gpt-4-turbo",
                                       messages=messages,
                                       max_tokens=1000,
                                       temperature=0.8)
