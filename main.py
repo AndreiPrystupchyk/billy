@@ -298,6 +298,9 @@ def handle_message(message):
   if gayRadar.radarCheckDate() and gayRadar.radarCheckHour():
     gayRadar.gayRadarStart(bot, message, False)
 
+  if message.text.lower().startswith('@spermobakibot'):
+    oai.oaiMessageGetter(bot,message,True)
+    answer = False
   
   if message.reply_to_message:
     if any(messageId == message.reply_to_message.id for messageId in (cache.playRaports + cache.csRaports + cache.dotaRaports)):
